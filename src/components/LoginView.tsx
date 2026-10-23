@@ -300,8 +300,27 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               </p>
             </div>
           </div>
+<<<<<<< HEAD
         </main>
       </div>
+=======
+        </div>
+
+        {/* Slogan */}
+        <div className="text-center">
+          <span className="text-[14pt] font-bold text-blue-900 bg-blue-50 px-4 py-2 rounded-2xl border border-blue-100 inline-block leading-normal">
+            Kết nối đoàn viên - Số hóa hoạt động
+          </span>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="text-center py-4 max-w-2xl mx-auto">
+        <p className="font-semibold text-slate-700 text-[14pt] leading-relaxed">
+          Được phát triển bởi Đoàn khoa Cơ khí trực thuộc Đoàn trường Cao đẳng Kiên Giang.
+        </p>
+      </footer>
+>>>>>>> 9c6c94357c6fdb244f9f4fe7c559adab50907a32
     </div>
   );
 };

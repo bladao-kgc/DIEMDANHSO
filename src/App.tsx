@@ -140,16 +140,19 @@ export default function App() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 hidden lg:block">
-        <div className="max-w-7xl mx-auto px-4 space-y-1">
-          <p className="font-semibold text-slate-700">
+      <footer 
+        className="bg-white border-t border-slate-200 py-6 text-center hidden lg:block"
+        style={{ fontFamily: "'Times New Roman', Times, serif", lineHeight: '17px' }}
+      >
+        <div className="max-w-7xl mx-auto px-4 space-y-2">
+          <p className="font-semibold text-slate-700 text-[14pt] leading-relaxed">
             Được phát triển bởi Đoàn khoa Cơ khí trực thuộc Đoàn trường Cao đẳng Kiên Giang.
           </p>
-          <p className="text-slate-400 font-medium">
-            Khẩu hiệu: <span className="text-blue-900 font-bold">Kết nối đoàn viên - Số hóa hoạt động</span>
-          </p>
-          <p className="text-[11px] text-slate-400 pt-1">
-            Hệ thống điểm danh QR động và quản lý ngày Công tác xã hội · Tương thích Microsoft Excel
+          <p 
+            className="text-blue-900 font-bold"
+            style={{ fontSize: '17.6667px', lineHeight: '29.3333px' }}
+          >
+            Kết nối đoàn viên - Số hóa hoạt động
           </p>
         </div>
       </footer>
