@@ -1,6 +1,11 @@
 {
   "name": "Điểm Danh Số - Đoàn khoa Cơ khí CĐ Kiên Giang",
   "description": "Hệ thống điểm danh QR động và quản lý ngày Công tác xã hội dành cho Đoàn khoa Cơ khí - Đoàn trường Cao đẳng Kiên Giang.",
-  "requestFramePermissions": ["camera", "geolocation"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

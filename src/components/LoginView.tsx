@@ -238,19 +238,16 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
 
         {/* Slogan */}
         <div className="text-center">
-          <span className="text-xs font-semibold text-blue-900/80 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 inline-block">
-            ★ Kết nối đoàn viên - Số hóa hoạt động ★
+          <span className="text-[14pt] font-bold text-blue-900 bg-blue-50 px-4 py-2 rounded-2xl border border-blue-100 inline-block leading-normal">
+            Kết nối đoàn viên - Số hóa hoạt động
           </span>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="text-center text-xs text-slate-400 py-4 max-w-xl mx-auto">
-        <p className="font-medium text-slate-500">
+      <footer className="text-center py-4 max-w-2xl mx-auto">
+        <p className="font-semibold text-slate-700 text-[14pt] leading-relaxed">
           Được phát triển bởi Đoàn khoa Cơ khí trực thuộc Đoàn trường Cao đẳng Kiên Giang.
-        </p>
-        <p className="text-[11px] text-slate-400 mt-0.5">
-          Hệ thống điểm danh QR động và quản lý ngày Công tác xã hội minh bạch, chuẩn xác.
         </p>
       </footer>
     </div>
