@@ -1,8 +1,8 @@
 {
   "repo": "bladao-kgc/DIEMDANHSO",
   "branch": "main",
-  "lastStableCommit": "local-uncommitted",
-  "commitMessage": "feat: responsive UI, reset password/delete user, unique username suffix, tailscale funnel diemdanhsockkgc, autostart startup shortcut, build-on-change",
+  "lastStableCommit": "d9704a5",
+  "commitMessage": "release v1.0.0: hoan thien he thong diem danh so (responsive, reset mat khau, xoa tai khoan, Tailscale Funnel, tu khoi dong, tai lieu MD + DOC)",
   "builtAt": "2026-10-24T14:30:00+07:00",
   "publicUrlHttps": "https://diemdanhsockkgc.tail0851f0.ts.net/",
   "publicUrlQuickTunnel": "https://tabs-crops-demonstrate-hip.trycloudflare.com",

@@ -1071,6 +1071,17 @@
   ],
   "audit_logs": [
     {
+      "id": "log-39c369ef",
+      "actor_id": "usr-admin-01",
+      "actor_name": "Bành Lê Anh Đào",
+      "actor_role": "ADMIN",
+      "action": "LOGIN",
+      "entity_type": "USER",
+      "entity_id": "usr-admin-01",
+      "details": "Đăng nhập thành công với vai trò: ADMIN",
+      "timestamp": "2026-10-23T18:14:04.834Z"
+    },
+    {
       "id": "log-b4a2fcb9",
       "actor_id": "usr-admin-01",
       "actor_name": "Bành Lê Anh Đào",
@@ -1313,7 +1324,7 @@
       "timestamp": "2026-10-23T16:15:01.285Z"
     }
   ],
-  "last_updated": "2026-10-23T17:57:48.327Z",
+  "last_updated": "2026-10-23T18:14:04.834Z",
   "credentials": {
     "usr-admin-01": {
       "salt": "56c3726d0b40f3c13dc9a263664fcc0e",
