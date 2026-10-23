@@ -157,27 +157,81 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                 <span className="text-[11px] font-bold text-blue-900">Vào điều hành</span>
               </button>
 
-              {/* DVTN Quick Login */}
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('CK2301')}
-                className="w-full p-2.5 bg-slate-50 hover:bg-emerald-50/70 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
-                    SV
-                  </div>
-                  <div>
-                    <span className="font-bold text-xs text-slate-800 block">
-                      Nguyễn Văn An · Đoàn viên thanh niên
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      Vai trò DVTN · Mã: CK2301 · Lớp CĐ CKM K23
-                    </span>
-                  </div>
+              {/* DVTN Quick Login Options from User List */}
+              <div className="pt-1">
+                <span className="text-[11px] font-bold text-slate-700 block mb-1">
+                  Đoàn viên thanh niên (Danh sách chính thức cấp tài khoản):
+                </span>
+                <div className="space-y-1.5">
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoLogin('CK24KL3135')}
+                    className="w-full p-2 bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
+                        ĐV
+                      </div>
+                      <div>
+                        <span className="font-bold text-xs text-slate-800 block">Danh Minh Trí</span>
+                        <span className="text-[10px] text-slate-500 font-mono">CK24KL3135 · Lớp CGKL 9+K5</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded">Đăng nhập</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoLogin('CK24OT3319')}
+                    className="w-full p-2 bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
+                        ĐV
+                      </div>
+                      <div>
+                        <span className="font-bold text-xs text-slate-800 block">Bùi Vĩ Khiêm</span>
+                        <span className="text-[10px] text-slate-500 font-mono">CK24OT3319 · Lớp CN ÔTÔ 3 9+K5</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded">Đăng nhập</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoLogin('CX26OT2208')}
+                    className="w-full p-2 bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
+                        ĐV
+                      </div>
+                      <div>
+                        <span className="font-bold text-xs text-slate-800 block">Nguyễn Minh Hiếu</span>
+                        <span className="text-[10px] text-slate-500 font-mono">CX26OT2208 · Lớp CN ÔTÔ 2 K20</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded">Đăng nhập</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleQuickDemoLogin('CK26LTOT53')}
+                    className="w-full p-2 bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
+                        ĐV
+                      </div>
+                      <div>
+                        <span className="font-bold text-xs text-slate-800 block">Phạm Chí Nghĩa</span>
+                        <span className="text-[10px] text-slate-500 font-mono">CK26LTOT53 · Lớp CN ÔTÔ 2 9+K4 (LT)</span>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded">Đăng nhập</span>
+                  </button>
                 </div>
-                <span className="text-[11px] font-bold text-blue-900">Vào điểm danh</span>
-              </button>
+              </div>
             </div>
           </div>
         </div>

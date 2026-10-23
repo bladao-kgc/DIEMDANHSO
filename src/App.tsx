@@ -81,7 +81,7 @@ export default function App() {
     try {
       let identifier = 'bladao@kgc.edu.vn'; // ADMIN
       if (targetRole === 'CANBO') identifier = 'thtkha@kgc.edu.vn';
-      if (targetRole === 'DVTN') identifier = 'CK2301';
+      if (targetRole === 'DVTN') identifier = 'CK24KL3135'; // Danh Minh Trí (CGKL 9+K5)
 
       const res = await api.login(identifier);
       setCurrentUser(res.user);
