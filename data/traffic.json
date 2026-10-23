@@ -1016,20 +1016,148 @@
       "path": "/api/activities",
       "method": "GET",
       "uaHash": "8ad03742c77db51f"
+    },
+    {
+      "id": "th-2b30bdc1e6d1",
+      "ts": 1792781196449,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/",
+      "method": "GET",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-7e0cad071594",
+      "ts": 1792781196569,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/auth/me",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-0c97ea391aef",
+      "ts": 1792781196571,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/activities",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-3eb78a195f7f",
+      "ts": 1792781196673,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/stats/dashboard",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-a4e2f097c6f7",
+      "ts": 1792781196675,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/activities",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-ca566fc623fe",
+      "ts": 1792781196677,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/attendance",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-7025d570ac8a",
+      "ts": 1792781196686,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/users",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-c66e6a252b6a",
+      "ts": 1792781196689,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/audit-logs",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-695573a4738a",
+      "ts": 1792781196691,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/activities",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-d3001ddae0bf",
+      "ts": 1792781196693,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/stats/traffic",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
     }
   ],
   "sessions": {
     "100.71.212.110|anon|b823641936b6352b": {
       "key": "100.71.212.110|anon|b823641936b6352b",
       "ip": "100.71.212.110",
-      "lastSeen": 1792781140502
+      "lastSeen": 1792781196449
     },
     "100.71.212.110|usr-admin-01|b823641936b6352b": {
       "key": "100.71.212.110|usr-admin-01|b823641936b6352b",
       "userId": "usr-admin-01",
       "role": "ADMIN",
       "ip": "100.71.212.110",
-      "lastSeen": 1792781140583
+      "lastSeen": 1792781196693
     },
     "127.0.0.1|anon|8ad03742c77db51f": {
       "key": "127.0.0.1|anon|8ad03742c77db51f",
