@@ -95,7 +95,7 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
     <div className="min-h-screen bg-slate-100">
       <div className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
         {/* ================= PANEL THƯƠNG HIỆU ================= */}
-        <aside className="relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 text-white px-6 py-8 sm:px-10 lg:px-14 lg:py-12 flex flex-col justify-between">
+        <aside className="relative hidden overflow-hidden bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 text-white px-6 py-8 sm:px-10 lg:flex lg:flex-col lg:justify-between lg:px-14 lg:py-12">
           {/* Họa tiết nền */}
           <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-sky-500/20 blur-3xl" />
           <div className="pointer-events-none absolute bottom-0 -left-20 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl" />
@@ -249,9 +249,9 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  <span className="mt-1 flex items-center gap-1 text-[11px] text-slate-400">
-                    <Info className="h-3 w-3" />
-                    Mật khẩu mặc định do Đoàn khoa cấp:
+                  <span className="mt-1 flex flex-wrap items-center gap-1 text-[11px] text-slate-400">
+                    <Info className="h-3 w-3 shrink-0" />
+                    <span>Mật khẩu mặc định do Đoàn khoa cấp:</span>
                     <strong className="font-semibold text-slate-600">{DEFAULT_PASSWORD}</strong>
                   </span>
                 </div>
@@ -300,27 +300,8 @@ export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
               </p>
             </div>
           </div>
-<<<<<<< HEAD
         </main>
       </div>
-=======
-        </div>
-
-        {/* Slogan */}
-        <div className="text-center">
-          <span className="text-[14pt] font-bold text-blue-900 bg-blue-50 px-4 py-2 rounded-2xl border border-blue-100 inline-block leading-normal">
-            Kết nối đoàn viên - Số hóa hoạt động
-          </span>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="text-center py-4 max-w-2xl mx-auto">
-        <p className="font-semibold text-slate-700 text-[14pt] leading-relaxed">
-          Được phát triển bởi Đoàn khoa Cơ khí trực thuộc Đoàn trường Cao đẳng Kiên Giang.
-        </p>
-      </footer>
->>>>>>> 9c6c94357c6fdb244f9f4fe7c559adab50907a32
     </div>
   );
 };

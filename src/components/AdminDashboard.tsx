@@ -26,7 +26,9 @@ import {
   ShieldCheck, 
   AlertTriangle,
   History,
-  X
+  X,
+  KeyRound,
+  Trash2
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -157,6 +159,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       loadData();
     } catch (err: any) {
       alert(err.message || 'Lỗi cập nhật trạng thái.');
+    }
+  };
+
+  const handleResetPassword = async (user: UserProfile) => {
+    const ok = window.confirm(
+      `Cấp lại mật khẩu cho ${user.full_name} (${user.code})?\n\nMật khẩu sẽ được đặt về mặc định: Kgc@2410`
+    );
+    if (!ok) return;
+
+    try {
+      await api.resetUserPassword(user.id);
+      alert(`Đã cấp lại mật khẩu cho ${user.full_name}.\nMật khẩu mới: Kgc@2410`);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Lỗi cấp lại mật khẩu.');
+    }
+  };
+
+  const handleDeleteUser = async (user: UserProfile) => {
+    const ok = window.confirm(
+      `XÓA VĨNH VIỄN tài khoản ${user.full_name} (${user.code})?\n\n` +
+      `Toàn bộ dữ liệu điểm danh của tài khoản này cũng sẽ bị xóa.\nHành động này KHÔNG THỂ khôi phục.`
+    );
+    if (!ok) return;
+
+    try {
+      await api.deleteUser(user.id);
+      alert(`Đã xóa tài khoản ${user.full_name} (${user.code}).`);
+      loadData();
+    } catch (err: any) {
+      alert(err.message || 'Lỗi xóa tài khoản.');
     }
   };
 
@@ -485,17 +518,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex w-full items-center gap-2 sm:w-auto">
               <button
                 onClick={() => setShowBulkImportModal(true)}
-                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-slate-100 px-3.5 py-2 text-xs font-semibold text-slate-800 transition-colors hover:bg-slate-200 sm:flex-none"
               >
                 <Upload className="w-3.5 h-3.5" />
                 Nhập từ CSV / Excel
               </button>
               <button
                 onClick={() => setShowCreateUserModal(true)}
-                className="px-3.5 py-2 bg-blue-900 hover:bg-blue-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-900 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition-colors hover:bg-blue-800 sm:flex-none"
               >
                 <Plus className="w-3.5 h-3.5" />
                 Thêm đoàn viên
@@ -530,7 +563,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
           {/* Users Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700">
+            <table className="w-full min-w-[920px] text-left text-xs text-slate-700">
               <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4">Mã ĐV / Cán bộ</th>
@@ -581,15 +614,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        {u.role !== 'ADMIN' && (
-                          <button
-                            onClick={() => handleToggleUserStatus(u)}
-                            className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
-                            title={u.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}
-                          >
-                            {u.status === 'active' ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5 text-emerald-600" />}
-                          </button>
-                        )}
+                        <div className="flex items-center justify-end gap-1">
+                          {u.id !== currentUser.id && (
+                            <button
+                              onClick={() => handleResetPassword(u)}
+                              className="p-1.5 text-slate-400 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="Cấp lại mật khẩu mặc định (Kgc@2410)"
+                            >
+                              <KeyRound className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          {u.role !== 'ADMIN' && (
+                            <>
+                              <button
+                                onClick={() => handleToggleUserStatus(u)}
+                                className="p-1.5 text-slate-400 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                                title={u.status === 'active' ? 'Khóa tài khoản' : 'Mở khóa'}
+                              >
+                                {u.status === 'active' ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5 text-emerald-600" />}
+                              </button>
+                              <button
+                                onClick={() => handleDeleteUser(u)}
+                                className="p-1.5 text-slate-400 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Xóa tài khoản"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -631,7 +684,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             <select
               value={reportActivityFilter}
               onChange={(e) => setReportActivityFilter(e.target.value)}
-              className="py-1.5 px-3 bg-white border border-slate-200 rounded-xl text-slate-700 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700 focus:outline-none sm:w-auto"
             >
               <option value="all">Tất cả hoạt động ({activities.length})</option>
               {activities.map((a) => (
@@ -644,13 +697,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               placeholder="Lọc theo lớp..."
               value={reportClassFilter}
               onChange={(e) => setReportClassFilter(e.target.value)}
-              className="py-1.5 px-3 bg-white border border-slate-200 rounded-xl text-slate-700 focus:outline-none"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-slate-700 focus:outline-none sm:w-auto"
             />
           </div>
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700">
+            <table className="w-full min-w-[1040px] text-left text-xs text-slate-700">
               <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
                 <tr>
                   <th className="py-3 px-4">STT</th>
@@ -731,7 +784,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
               {auditLogs.map((log) => (
-                <div key={log.id} className="p-3.5 px-5 flex items-start justify-between text-xs gap-3">
+                <div key={log.id} className="flex flex-col gap-1 px-4 py-3.5 text-xs sm:flex-row sm:items-start sm:justify-between sm:gap-3 sm:px-5">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-slate-900">{log.actor_name}</span>
@@ -808,7 +861,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div>
                   <label className="font-bold text-slate-800 block mb-1">Mức ngày CTXH chính thức *</label>
                   <select
@@ -862,7 +915,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   Bật yêu cầu xác minh vị trí GPS thực địa
                 </label>
                 {newActivity.gps_required && (
-                  <div className="pl-6 grid grid-cols-2 gap-3 pt-1">
+                  <div className="grid grid-cols-1 gap-3 pt-1 pl-0 sm:grid-cols-2 sm:pl-6">
                     <div>
                       <span className="text-[11px] text-slate-500 block">Bán kính cho phép (mét)</span>
                       <input
@@ -1047,8 +1100,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {bulkParsedRows.length > 0 && (
                 <div>
                   <span className="font-bold text-slate-800 block mb-2">Xem trước danh sách chuẩn bị nhập:</span>
-                  <div className="border border-slate-200 rounded-xl max-h-48 overflow-y-auto">
-                    <table className="w-full text-left text-[11px]">
+                  <div className="max-h-48 overflow-x-auto overflow-y-auto rounded-xl border border-slate-200">
+                    <table className="w-full min-w-[520px] text-left text-[11px]">
                       <thead className="bg-slate-50 text-slate-500 border-b border-slate-200">
                         <tr>
                           <th className="p-2">Mã ĐV</th>

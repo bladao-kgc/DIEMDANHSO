@@ -15,6 +15,18 @@ Repo: https://github.com/bladao-kgc/DIEMDANHSO
 | Chạy thử | ✅ `http://localhost:3000` (API trả HTTP 200) |
 | Đăng nhập | ✅ Tên viết tắt + mật khẩu mặc định `Kgc@2410` |
 | Dữ liệu | 📄 `data/db.json` (file JSON, tự lưu khi có thay đổi) |
+| Truy cập công khai | ✅ `https://diemdanhsockkgc.tail0851f0.ts.net/` (Tailscale Funnel, HTTPS) |
+| Tự chạy khi mở laptop | ✅ Shortcut trong thư mục Startup của Windows |
+| Cấp lại mật khẩu / xóa tài khoản | ✅ Chỉ ADMIN, có ghi nhật ký |
+
+### Địa chỉ truy cập chính thức
+
+| Kênh | Địa chỉ | Ghi chú |
+|---|---|---|
+| Công khai (khuyến nghị) | https://diemdanhsockkgc.tail0851f0.ts.net/ | HTTPS, dùng mọi Wi-Fi/4G, camera & GPS hoạt động |
+| Nội bộ máy chủ | http://localhost:3000 | Chỉ trên máy đang chạy server |
+| LAN | http://192.168.1.128:3000 | Cùng Wi-Fi; HTTP nên điện thoại có thể chặn camera |
+| DuckDNS dự phòng | http://ddskgc.duckdns.org:3000 | Chỉ khi đã mở port-forward trên router |
 
 ### Quy tắc đăng nhập mới
 
@@ -262,6 +274,138 @@ Lưu ý: Quick Tunnel miễn phí **đổi link mỗi lần chạy**; muốn lin
 
 ---
 
+## 2E. Kênh công khai chính: Tailscale Funnel (đang dùng)
+
+Tailscale Funnel tạo đường hầm HTTPS công khai từ máy chủ này ra Internet **không cần mở cổng router**, không cần tên miền riêng, dùng được trên mọi Wi-Fi/4G. Đây là kênh đang hoạt động chính thức.
+
+- Link: https://diemdanhsockkgc.tail0851f0.ts.net/
+- Máy chủ nội bộ: `http://127.0.0.1:3000`
+
+### Bước 2E.1 — Cài Tailscale (làm 1 lần)
+
+1. Tải tại <https://tailscale.com/download/windows> → cài đặt.
+2. Đăng nhập bằng tài khoản Google/GitHub/Microsoft.
+3. Kiểm tra:
+
+```powershell
+& "$env:ProgramFiles\Tailscale\tailscale.exe" status
+```
+
+### Bước 2E.2 — Đặt tên máy chủ và bật Funnel
+
+```powershell
+& "$env:ProgramFiles\Tailscale\tailscale.exe" set --hostname=diemdanhsockkgc
+& "$env:ProgramFiles\Tailscale\tailscale.exe" funnel --bg 3000
+& "$env:ProgramFiles\Tailscale\tailscale.exe" funnel status
+```
+
+Kết quả mong đợi:
+
+```
+https://diemdanhsockkgc.tail0851f0.ts.net (Funnel on)
+|-- / proxy http://127.0.0.1:3000
+```
+
+Lần đầu bật Funnel, Tailscale mở trình duyệt yêu cầu xác nhận quyền — bấm **Enable Funnel**.
+
+### Bước 2E.3 — Kiểm tra từ Internet
+
+Mở trên điện thoại (tắt Wi-Fi, dùng 4G): https://diemdanhsockkgc.tail0851f0.ts.net/
+
+- Trang đăng nhập hiện ra → đạt.
+- Đăng nhập thử `blad` / `Kgc@2410` → vào được Dashboard → đạt.
+
+### Bước 2E.4 — Tắt / bật lại Funnel
+
+```powershell
+# Tắt
+& "$env:ProgramFiles\Tailscale\tailscale.exe" funnel --https=443 off
+
+# Bật lại
+& "$env:ProgramFiles\Tailscale\tailscale.exe" funnel --bg 3000
+```
+
+> Tailscale Funnel do dịch vụ Tailscale tự chạy cùng Windows. Nếu laptop tắt nguồn hoặc mất Internet, link công khai sẽ ngừng hoạt động cho đến khi máy bật lại.
+
+---
+
+## 2F. Tự khởi động web khi mở laptop
+
+Đã tạo shortcut trong thư mục Startup (không cần quyền Administrator):
+
+```
+C:\Users\<TênNgườiDùng>\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\DIEMDANHSO Web.lnk
+```
+
+Shortcut chạy:
+
+```powershell
+powershell -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "D:\CHUYENDOISO2026\DIEMDANHSO\scripts\start-web.ps1"
+```
+
+`scripts\start-web.ps1` tự kiểm tra: nếu mã nguồn mới hơn bản build thì tự `npm run build` rồi mới chạy — nên sau khi `git pull` chỉ cần khởi động lại máy.
+
+### Kiểm tra shortcut còn tồn tại
+
+```powershell
+$startup = [Environment]::GetFolderPath('Startup')
+Test-Path (Join-Path $startup 'DIEMDANHSO Web.lnk')
+```
+
+### Tạo lại shortcut nếu bị mất
+
+```powershell
+$startup = [Environment]::GetFolderPath('Startup')
+$lnk = Join-Path $startup 'DIEMDANHSO Web.lnk'
+$ws = New-Object -ComObject WScript.Shell
+$s = $ws.CreateShortcut($lnk)
+$s.TargetPath = 'powershell.exe'
+$s.Arguments = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "D:\CHUYENDOISO2026\DIEMDANHSO\scripts\start-web.ps1"'
+$s.WorkingDirectory = 'D:\CHUYENDOISO2026\DIEMDANHSO'
+$s.WindowStyle = 7
+$s.Save()
+```
+
+> Không dùng `Register-ScheduledTask` trên máy này vì tài khoản hiện tại bị **Access denied**; shortcut Startup là cách thay thế tương đương và không cần quyền admin.
+
+---
+
+## 2G. Cấp lại mật khẩu & xóa tài khoản (ADMIN)
+
+### Cấp lại mật khẩu
+
+1. Đăng nhập bằng tài khoản ADMIN.
+2. Vào tab **Quản lý đoàn viên**.
+3. Tìm đoàn viên cần cấp lại mật khẩu.
+4. Bấm nút **hình chìa khóa** ở cột **Thao tác**.
+5. Xác nhận → mật khẩu được đặt về `Kgc@2410`.
+
+> Không thể cấp lại mật khẩu cho chính tài khoản đang đăng nhập (nút bị ẩn). Dùng chức năng này khi đoàn viên quên mật khẩu.
+
+### Xóa tài khoản
+
+1. Vào tab **Quản lý đoàn viên**.
+2. Bấm nút **hình thùng rác** ở cột **Thao tác**.
+3. Đọc kỹ cảnh báo → xác nhận.
+
+Khi xóa:
+
+- Hồ sơ và mật khẩu bị xóa vĩnh viễn;
+- Toàn bộ dữ liệu điểm danh của tài khoản đó cũng bị xóa;
+- Không thể khôi phục.
+
+**Giới hạn an toàn:**
+
+- ADMIN không thể tự xóa tài khoản đang đăng nhập;
+- ADMIN không thể xóa tài khoản ADMIN khác — chỉ có thể **khóa**;
+- Mọi thao tác cấp lại mật khẩu/xóa đều ghi vào **Nhật ký thao tác**.
+
+### Khóa / mở khóa
+
+Bấm nút **ổ khóa** ở cột **Thao tác**. Tài khoản bị khóa không đăng nhập được nhưng dữ liệu vẫn giữ nguyên — dùng khi tạm đình chỉ thay vì xóa.
+
+---
+
 ## 3. Sao lưu & cập nhật
 
 ### 3.1 — Sao lưu dữ liệu (quan trọng)
@@ -300,9 +444,12 @@ Dữ liệu trong `data\db.json` **không** bị Git ghi đè (trừ khi bạn `
 | Tunnel báo lỗi 1033 | Tunnel chưa chạy hoặc hostname chưa route: chạy lại `cloudflare-tunnel.ps1 -RouteOnly` rồi khởi động tunnel |
 | Camera không mở trên điện thoại | Phải dùng HTTPS (2A) hoặc `localhost`; HTTP qua IP sẽ bị chặn |
 | GPS sai vị trí | Kiểm tra quyền vị trí của trình duyệt; bán kính mặc định 150 m quanh toạ độ hoạt động |
-| Quên mật khẩu/đăng nhập | Mật khẩu mặc định `Kgc@2410`; đăng nhập bằng tên viết tắt (vd `blad`), tên tài khoản (`bladao`), mã ĐV hoặc họ tên đầy đủ |
+| Quên mật khẩu/đăng nhập | Mật khẩu mặc định `Kgc@2410`; đăng nhập bằng tên viết tắt (vd `blad`), tên tài khoản (`bladao`), mã ĐV hoặc họ tên đầy đủ. ADMIN có thể cấp lại mật khẩu trong tab Quản lý đoàn viên |
 | Tên viết tắt bị trùng | Dùng tên đăng nhập đầy đủ có hậu tố (vd `thtk.2`) hoặc mã đoàn viên |
 | DuckDNS chưa vào được | Chạy lại `scripts\duckdns-setup.ps1`; kiểm tra đã mở cổng 3000 trên router và IP LAN đúng |
+| Link Tailscale không vào được | Kiểm tra web đang chạy (`Invoke-WebRequest http://127.0.0.1:3000`), rồi `tailscale funnel status`; bật lại bằng `tailscale funnel --bg 3000` |
+| Sau khi mở laptop web không tự chạy | Kiểm tra shortcut `DIEMDANHSO Web.lnk` trong thư mục Startup; chạy tay `scripts\start-web.ps1` để xem lỗi |
+| Đã `git pull` nhưng giao diện chưa đổi | Chạy lại `scripts\start-web.ps1` (script tự build khi source mới hơn) hoặc `npm run build` |
 
 ### Kiểm tra nhanh toàn hệ thống bằng API
 
@@ -334,9 +481,24 @@ powershell -ExecutionPolicy Bypass -File .\scripts\duckdns-setup.ps1 -Token "TOK
 # HTTPS nhanh (link tạm, đổi mỗi lần chạy)
 & "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://localhost:3000
 
+# Kênh công khai chính (Tailscale Funnel, HTTPS, đang dùng)
+& "$env:ProgramFiles\Tailscale\tailscale.exe" funnel --bg 3000
+& "$env:ProgramFiles\Tailscale\tailscale.exe" funnel status
+# → https://diemdanhsockkgc.tail0851f0.ts.net/
+
 # Tên miền chỉ trên máy này
 #   (Run as administrator) scripts\setup-hosts-domain.bat
 
 # Sao lưu dữ liệu
 Copy-Item .\data\db.json ".\data\db-backup-$(Get-Date -Format yyyyMMdd-HHmm).json"
 ```
+
+---
+
+## 6. Tài liệu liên quan
+
+| Tài liệu | Nội dung |
+|---|---|
+| `docs/BAO-CAO-TINH-NANG.md` | Toàn bộ tính năng, hướng dẫn sử dụng cho Đoàn viên, kết quả kiểm thử |
+| `docs/GIOI-THIEU-DAU-TU.md` | Hồ sơ giới thiệu dự án cho nhà đầu tư: vấn đề, thị trường, mô hình doanh thu, lộ trình |
+| `docs/STABLE-BUILD.json` | Mốc commit ổn định, link công khai, tài khoản mặc định |

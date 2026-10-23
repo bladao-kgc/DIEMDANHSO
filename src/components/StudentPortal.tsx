@@ -117,7 +117,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
         {/* Progress Bar towards term benchmark */}
         <div className="mt-6 pt-5 border-t border-white/10 space-y-2">
-          <div className="flex justify-between text-xs text-slate-300 font-medium">
+          <div className="flex flex-wrap justify-between gap-1 text-xs font-medium text-slate-300">
             <span>Tiến độ tích lũy ngày CTXH năm học (Mục tiêu: {targetDays} ngày)</span>
             <span className="font-mono text-amber-300 font-bold">{progressPercent}%</span>
           </div>
@@ -271,7 +271,7 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
 
       {/* CTXH LEDGER / HISTORY */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
-        <div className="p-4 sm:p-5 border-b border-slate-200 flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 p-4 sm:p-5">
           <div className="flex items-center gap-2">
             <History className="w-5 h-5 text-blue-900" />
             <h3 className="font-bold text-base text-slate-900">
@@ -290,8 +290,8 @@ export const StudentPortal: React.FC<StudentPortalProps> = ({
             </div>
           ) : (
             transactions.map((tx) => (
-              <div key={tx.id} className="p-4 px-5 flex items-center justify-between text-xs gap-3">
-                <div className="space-y-0.5">
+              <div key={tx.id} className="flex flex-col gap-2 px-4 py-4 text-xs sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5">
+                <div className="min-w-0 space-y-0.5">
                   <span className="font-bold text-slate-900 block text-sm">
                     {tx.activity_title}
                   </span>

@@ -95,6 +95,17 @@ export const api = {
     });
   },
 
+  async resetUserPassword(id: string): Promise<{ success: boolean; defaultPassword: string; user: UserProfile }> {
+    return this.request<{ success: boolean; defaultPassword: string; user: UserProfile }>(
+      `/api/users/${id}/reset-password`,
+      { method: 'POST' }
+    );
+  },
+
+  async deleteUser(id: string): Promise<{ success: boolean }> {
+    return this.request<{ success: boolean }>(`/api/users/${id}`, { method: 'DELETE' });
+  },
+
   // Activities
   async getActivities(): Promise<{ activities: Activity[] }> {
     return this.request<{ activities: Activity[] }>('/api/activities');

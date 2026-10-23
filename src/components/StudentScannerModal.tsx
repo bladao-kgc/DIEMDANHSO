@@ -329,20 +329,20 @@ export const StudentScannerModal: React.FC<StudentScannerModalProps> = ({
     <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
       <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col my-auto max-h-[96vh]">
         {/* Header */}
-        <div className="bg-blue-900 text-white px-5 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-400 text-blue-950 flex items-center justify-center font-black text-xs">
+        <div className="flex items-center justify-between gap-3 bg-blue-900 px-4 py-4 text-white sm:px-5">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-400 text-xs font-black text-blue-950">
               ĐV
             </div>
-            <div>
-              <h3 className="font-bold text-sm sm:text-base leading-tight">
+            <div className="min-w-0">
+              <h3 className="text-sm font-bold leading-tight sm:text-base">
                 {step === 'scan_qr' && 'Quét mã QR Điểm danh'}
                 {step === 'verify_gps' && 'Xác minh vị trí thực địa GPS'}
                 {step === 'capture_photo' && 'Chụp ảnh minh chứng trực tiếp'}
                 {step === 'submitting' && 'Máy chủ đang xác thực...'}
                 {step === 'completed' && 'Điểm danh thành công!'}
               </h3>
-              <span className="text-[11px] text-blue-200 block">
+              <span className="block truncate text-[11px] text-blue-200">
                 {user.full_name} · {user.code} ({user.class_name})
               </span>
             </div>
@@ -350,7 +350,7 @@ export const StudentScannerModal: React.FC<StudentScannerModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            className="shrink-0 rounded-lg p-1.5 text-slate-300 transition-colors hover:bg-white/10 hover:text-white"
           >
             <X className="w-5 h-5" />
           </button>

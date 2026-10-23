@@ -166,6 +166,46 @@ app.patch('/api/users/:id/status', (req: Request, res: Response) => {
   res.json({ user: updated });
 });
 
+// Cấp lại mật khẩu mặc định Kgc@2410 (ADMIN)
+app.post('/api/users/:id/reset-password', (req: Request, res: Response) => {
+  const actor = getAuthUser(req);
+  if (!actor || actor.role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Chỉ Quản trị viên mới có quyền cấp lại mật khẩu.' });
+  }
+
+  const profile = db.getProfileById(req.params.id);
+  if (!profile) {
+    return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
+  }
+
+  db.resetPasswordToDefault(profile.id);
+  db.logAudit(actor, 'RESET_PASSWORD', 'USER', profile.id, `Cấp lại mật khẩu mặc định cho ${profile.full_name} (${profile.code})`);
+  res.json({ success: true, defaultPassword: 'Kgc@2410', user: profile });
+});
+
+// Xóa tài khoản (ADMIN)
+app.delete('/api/users/:id', (req: Request, res: Response) => {
+  const actor = getAuthUser(req);
+  if (!actor || actor.role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Chỉ Quản trị viên mới có quyền xóa tài khoản.' });
+  }
+  if (req.params.id === actor.id) {
+    return res.status(400).json({ error: 'Không thể tự xóa tài khoản đang đăng nhập.' });
+  }
+
+  const profile = db.getProfileById(req.params.id);
+  if (!profile) {
+    return res.status(404).json({ error: 'Không tìm thấy tài khoản.' });
+  }
+  if (profile.role === 'ADMIN') {
+    return res.status(400).json({ error: 'Không thể xóa tài khoản Quản trị viên. Hãy khóa tài khoản nếu cần.' });
+  }
+
+  db.deleteProfile(profile.id);
+  db.logAudit(actor, 'DELETE_USER', 'USER', profile.id, `Xóa tài khoản ${profile.full_name} (${profile.code})`);
+  res.json({ success: true });
+});
+
 // --- ACTIVITIES API ---
 app.get('/api/activities', (_req: Request, res: Response) => {
   const activities = db.getActivities();

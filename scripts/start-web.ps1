@@ -20,6 +20,17 @@ if (-not (Test-Path (Join-Path $Root 'node_modules'))) {
 if (-not (Test-Path (Join-Path $Root 'dist')) -or -not (Test-Path (Join-Path $Root 'server.js'))) {
     Write-Host 'Building production bundle...'
     npm run build
+} else {
+    # Tu dong build lai khi ma nguon moi hon ban build (vd sau khi git pull)
+    $bundleTime = (Get-Item (Join-Path $Root 'server.js')).LastWriteTimeUtc
+    $sourcePaths = @('src', 'server.ts', 'index.html') | ForEach-Object { Join-Path $Root $_ }
+    $changed = Get-ChildItem -Path $sourcePaths -Recurse -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.LastWriteTimeUtc -gt $bundleTime } |
+        Select-Object -First 1
+    if ($changed) {
+        Write-Host "Source changed ($($changed.Name)) - rebuilding..."
+        npm run build
+    }
 }
 
 $logDir = Join-Path $Root 'logs'

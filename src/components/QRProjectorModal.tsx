@@ -115,13 +115,13 @@ export const QRProjectorModal: React.FC<QRProjectorModalProps> = ({
         className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col my-auto max-h-[96vh]"
       >
         {/* Header Bar */}
-        <div className="bg-blue-900 text-white px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-400 text-blue-950 flex items-center justify-center font-black">
+        <div className="flex items-center justify-between gap-3 bg-blue-900 px-4 py-4 text-white sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-400 font-black text-blue-950">
               QR
             </div>
-            <div>
-              <span className="text-xs font-semibold text-amber-300 uppercase tracking-wider block">
+            <div className="min-w-0">
+              <span className="hidden text-xs font-semibold uppercase tracking-wider text-amber-300 sm:block">
                 MÀN HÌNH ĐIỂM DANH TRÌNH CHIẾU · ĐOÀN KHOA CƠ KHÍ
               </span>
               <h2 className="text-lg sm:text-xl font-bold leading-tight line-clamp-1">
@@ -149,13 +149,13 @@ export const QRProjectorModal: React.FC<QRProjectorModalProps> = ({
         </div>
 
         {/* Content Body */}
-        <div className="p-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-center flex-1 overflow-y-auto">
+        <div className="grid flex-1 grid-cols-1 items-center gap-5 overflow-y-auto p-4 sm:gap-8 sm:p-6 md:grid-cols-12">
           {/* Left: QR Display & Countdown */}
           <div className="md:col-span-7 flex flex-col items-center text-center">
             {/* QR Container */}
             <div className="relative p-4 bg-white rounded-3xl border-2 border-slate-200 shadow-lg mb-4">
               {loading || !qrDataUrl ? (
-                <div className="w-64 h-64 sm:w-80 sm:h-80 flex flex-col items-center justify-center text-slate-400 gap-3">
+                <div className="flex h-56 w-56 flex-col items-center justify-center gap-3 text-slate-400 sm:h-80 sm:w-80">
                   <RefreshCw className="w-8 h-8 animate-spin text-blue-600" />
                   <span className="text-sm">Đang tạo mã QR động...</span>
                 </div>
@@ -163,7 +163,7 @@ export const QRProjectorModal: React.FC<QRProjectorModalProps> = ({
                 <img
                   src={qrDataUrl}
                   alt="Dynamic QR Code"
-                  className="w-64 h-64 sm:w-80 sm:h-80 object-contain rounded-xl select-none"
+                  className="h-56 w-56 select-none rounded-xl object-contain sm:h-80 sm:w-80"
                 />
               )}
 

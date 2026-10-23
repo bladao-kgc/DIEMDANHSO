@@ -1,10 +1,10 @@
 {
   "repo": "bladao-kgc/DIEMDANHSO",
   "branch": "main",
-  "lastStableCommit": "e233df1",
-  "commitMessage": "feat: dang nhap bang ten viet tat + mat khau mac dinh, ten dang nhap tu dong tranh trung, DuckDNS",
-  "builtAt": "2026-10-24T00:30:00+07:00",
-  "publicUrlHttps": "https://banhleanhdao688.tail0851f0.ts.net/",
+  "lastStableCommit": "local-uncommitted",
+  "commitMessage": "feat: responsive UI, reset password/delete user, unique username suffix, tailscale funnel diemdanhsockkgc, autostart startup shortcut, build-on-change",
+  "builtAt": "2026-10-24T14:30:00+07:00",
+  "publicUrlHttps": "https://diemdanhsockkgc.tail0851f0.ts.net/",
   "publicUrlQuickTunnel": "https://tabs-crops-demonstrate-hip.trycloudflare.com",
   "localUrl": "http://localhost:3000",
   "login": {
@@ -13,8 +13,15 @@
     "notes": "Neu trung ten, he thong tu them .2, .3..."
   },
   "autoStart": {
-    "webTask": "DIEMDANHSO-WEB-AUTOSTART",
-    "tailscaleFunnel": "enabled (tailscale funnel --bg 3000)"
+    "webTask": "shortcut Startup: DIEMDANHSO Web.lnk",
+    "tailscaleFunnel": "enabled (tailscale funnel --bg 3000, hostname diemdanhsockkgc)"
+  },
+  "features": {
+    "resetPassword": true,
+    "deleteUser": true,
+    "uniqueUsernameSuffix": true,
+    "responsive": true,
+    "autoBuildOnSourceChange": true
   },
   "qrReady": true,
   "notes": "Dung link HTTPS de camera/GPS hoat dong tot tren dien thoai"

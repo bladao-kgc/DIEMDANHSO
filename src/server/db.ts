@@ -496,6 +496,23 @@ class DatabaseService {
     return this.setPassword(userId, DEFAULT_PASSWORD);
   }
 
+  /** Xóa tài khoản và mật khẩu đi kèm (chỉ ADMIN được gọi qua API) */
+  public deleteProfile(userId: string): boolean {
+    const index = this.data.profiles.findIndex(p => p.id === userId);
+    if (index === -1) return false;
+
+    this.data.profiles.splice(index, 1);
+    if (this.data.credentials) {
+      delete this.data.credentials[userId];
+    }
+
+    // Dọn dữ liệu điểm danh mồ côi của tài khoản đã xóa
+    this.data.attendances = this.data.attendances.filter(a => a.user_id !== userId);
+
+    this.save();
+    return true;
+  }
+
   /**
    * Tìm tài khoản theo "họ và tên viết tắt".
    * Chấp nhận: mã đoàn viên, username (vd: bladao), email,
