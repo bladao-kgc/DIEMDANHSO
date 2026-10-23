@@ -2,257 +2,306 @@ import React, { useState } from 'react';
 import type { UserProfile } from '../types/index.ts';
 import { api } from '../services/api.ts';
 import { YouthUnionLogo } from './YouthUnionLogo.tsx';
-import { Shield, Users, Award, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowRight,
+  Camera,
+  Eye,
+  EyeOff,
+  Info,
+  KeyRound,
+  Lock,
+  MapPin,
+  QrCode,
+  ShieldCheck,
+  UserRound,
+} from 'lucide-react';
 
 interface LoginViewProps {
   onLoginSuccess: (user: UserProfile) => void;
 }
 
+const DEFAULT_PASSWORD = 'Kgc@2410';
+const LAST_IDENTIFIER_KEY = 'dds_last_identifier';
+
+const ROLE_GUIDE = [
+  {
+    code: 'ADMIN',
+    label: 'Quản trị viên',
+    desc: 'Cấp tài khoản, quản lý đoàn viên, nhật ký hệ thống',
+    accent: 'border-red-400/30 bg-red-500/10 text-red-100',
+    dot: 'bg-red-400',
+  },
+  {
+    code: 'CANBO',
+    label: 'Cán bộ Đoàn',
+    desc: 'Tạo hoạt động, mở – đóng điểm danh QR, xuất báo cáo',
+    accent: 'border-sky-400/30 bg-sky-500/10 text-sky-100',
+    dot: 'bg-sky-400',
+  },
+  {
+    code: 'DVTN',
+    label: 'Đoàn viên',
+    desc: 'Trang cá nhân, quét QR điểm danh, tra cứu ngày CTXH',
+    accent: 'border-emerald-400/30 bg-emerald-500/10 text-emerald-100',
+    dot: 'bg-emerald-400',
+  },
+];
+
 export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
-  const [identifier, setIdentifier] = useState<string>('');
+  const [identifier, setIdentifier] = useState<string>(() => {
+    try {
+      return localStorage.getItem(LAST_IDENTIFIER_KEY) || '';
+    } catch {
+      return '';
+    }
+  });
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!identifier.trim()) return;
+    const name = identifier.trim();
 
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await api.login(identifier.trim());
-      onLoginSuccess(res.user);
-    } catch (err: any) {
-      setError(err.message || 'Đăng nhập không thành công.');
-    } finally {
-      setLoading(false);
+    if (!name) {
+      setError('Vui lòng nhập họ và tên viết tắt của bạn.');
+      return;
     }
-  };
+    if (!password) {
+      setError('Vui lòng nhập mật khẩu.');
+      return;
+    }
 
-  const handleQuickDemoLogin = async (demoId: string) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.login(demoId);
+      const res = await api.login(name, password);
+      try {
+        localStorage.setItem(LAST_IDENTIFIER_KEY, name);
+      } catch {
+        /* ignore */
+      }
       onLoginSuccess(res.user);
-    } catch (err: any) {
-      setError(err.message || 'Đăng nhập không thành công.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Đăng nhập không thành công.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between py-8 px-4 sm:px-6">
-      <div className="w-full max-w-md mx-auto my-auto space-y-6">
-        {/* Brand & Emblem Header */}
-        <div className="text-center space-y-3">
-          <div className="flex justify-center">
-            <YouthUnionLogo size={68} />
+    <div className="min-h-screen bg-slate-100">
+      <div className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
+        {/* ================= PANEL THƯƠNG HIỆU ================= */}
+        <aside className="relative overflow-hidden bg-gradient-to-br from-blue-950 via-blue-900 to-slate-900 text-white px-6 py-8 sm:px-10 lg:px-14 lg:py-12 flex flex-col justify-between">
+          {/* Họa tiết nền */}
+          <div className="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-sky-500/20 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-0 -left-20 h-72 w-72 rounded-full bg-amber-400/10 blur-3xl" />
+
+          <div className="relative space-y-8">
+            <div className="flex items-center gap-3">
+              <div className="rounded-2xl bg-white/95 p-2 shadow-lg shadow-blue-950/40">
+                <YouthUnionLogo size={44} />
+              </div>
+              <div className="leading-tight">
+                <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-amber-300">
+                  Đoàn trường Cao đẳng Kiên Giang
+                </p>
+                <p className="text-sm font-semibold text-blue-100">Đoàn khoa Cơ khí</p>
+              </div>
+            </div>
+
+            <div className="space-y-3 max-w-lg">
+              <h1 className="text-3xl sm:text-4xl font-extrabold uppercase leading-tight tracking-tight">
+                Hệ thống <span className="text-amber-300">Điểm danh số</span>
+              </h1>
+              <p className="text-sm sm:text-base text-blue-100/90 leading-relaxed">
+                Điểm danh QR động, xác thực GPS thực địa và ảnh minh chứng — quản lý ngày
+                Công tác xã hội minh bạch, chính xác cho đoàn viên khoa Cơ khí.
+              </p>
+            </div>
+
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-w-lg text-[13px]">
+              {[
+                { icon: QrCode, text: 'Mã QR động đổi liên tục' },
+                { icon: MapPin, text: 'Xác thực GPS trong bán kính' },
+                { icon: Camera, text: 'Ảnh minh chứng có dấu thời gian' },
+                { icon: ShieldCheck, text: 'Phân quyền theo tài khoản được cấp' },
+              ].map(({ icon: Icon, text }) => (
+                <li
+                  key={text}
+                  className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-2 backdrop-blur-sm"
+                >
+                  <Icon className="h-4 w-4 shrink-0 text-amber-300" />
+                  <span className="text-blue-50">{text}</span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="space-y-2 max-w-lg">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-blue-200/70">
+                Hệ thống tự nhận diện quyền truy cập
+              </p>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {ROLE_GUIDE.map((role) => (
+                  <div
+                    key={role.code}
+                    className={`rounded-xl border px-3 py-2.5 backdrop-blur-sm ${role.accent}`}
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <span className={`h-1.5 w-1.5 rounded-full ${role.dot}`} />
+                      <span className="text-[11px] font-bold uppercase tracking-wide">{role.label}</span>
+                    </div>
+                    <p className="mt-1 text-[11px] leading-snug opacity-80">{role.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div>
-            <span className="text-xs font-bold text-amber-600 tracking-wider uppercase block">
-              Đoàn trường Cao đẳng Kiên Giang
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-blue-900 tracking-tight uppercase mt-0.5">
-              ĐIỂM DANH SỐ
-            </h1>
-            <p className="text-xs text-slate-500 font-medium mt-1">
-              Hệ thống điểm danh QR động & Quản lý ngày Công tác xã hội
-              <br />
-              <strong className="text-slate-700">Đoàn khoa Cơ khí</strong>
+          <div className="relative mt-8 hidden lg:block">
+            <p className="text-xs font-semibold text-blue-200/80">
+              ★ Kết nối đoàn viên – Số hóa hoạt động ★
             </p>
           </div>
-        </div>
+        </aside>
 
-        {/* Login Card */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-5">
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="font-bold text-xs text-slate-700 block mb-1.5">
-                Tài khoản Đoàn viên / Cán bộ
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="Nhập mã ĐV (vd: CK2301) hoặc email KGC..."
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium"
-              />
-              <span className="text-[11px] text-slate-400 mt-1 block">
-                Hệ thống tự động xác định vai trò sau khi xác thực.
-              </span>
+        {/* ================= FORM ĐĂNG NHẬP ================= */}
+        <main className="flex items-center justify-center px-4 py-10 sm:px-8">
+          <div className="w-full max-w-md space-y-5">
+            {/* Logo cho mobile */}
+            <div className="flex items-center gap-3 lg:hidden">
+              <YouthUnionLogo size={40} />
+              <div className="leading-tight">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600">
+                  Đoàn khoa Cơ khí
+                </p>
+                <p className="text-lg font-extrabold uppercase text-blue-900">Điểm danh số</p>
+              </div>
             </div>
 
-            {error && (
-              <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl flex items-start gap-2 border border-red-200">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{error}</span>
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <div className="mb-6 space-y-1.5">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-blue-800">
+                  <KeyRound className="h-3 w-3" />
+                  Cổng đăng nhập tài khoản
+                </div>
+                <h2 className="text-xl font-extrabold text-slate-900 sm:text-2xl">
+                  Đăng nhập hệ thống
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Dành cho tài khoản đã được Đoàn khoa cấp. Vai trò và quyền hạn được xác định
+                  tự động theo tài khoản.
+                </p>
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 bg-blue-900 hover:bg-blue-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors shadow-sm disabled:opacity-50"
-            >
-              {loading ? 'Đang xác thực...' : 'Đăng nhập vào hệ thống'}
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
+              <form onSubmit={handleLogin} className="space-y-4" noValidate>
+                {/* Họ tên viết tắt */}
+                <div>
+                  <label htmlFor="identifier" className="mb-1.5 block text-xs font-bold text-slate-700">
+                    Họ và tên viết tắt
+                  </label>
+                  <div className="relative">
+                    <UserRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      id="identifier"
+                      type="text"
+                      inputMode="text"
+                      autoComplete="username"
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      placeholder="Ví dụ: bladao, thtkha, blad"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 text-sm font-medium transition-all focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                    />
+                  </div>
+                  <span className="mt-1 block text-[11px] text-slate-400">
+                    Nhập tên tài khoản được cấp hoặc chữ cái đầu họ tên (bỏ dấu, không cách).
+                  </span>
+                </div>
 
-          {/* Quick Demo Switcher Section */}
-          <div className="pt-4 border-t border-slate-100 space-y-2.5">
-            <div className="flex items-center justify-between text-xs text-slate-500">
-              <span className="font-bold uppercase tracking-wide text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
-                DỮ LIỆU DEMO KIỂM THỬ
-              </span>
-              <span className="text-[11px]">Bấm vào để thử nghiệm ngay:</span>
+                {/* Mật khẩu */}
+                <div>
+                  <label htmlFor="password" className="mb-1.5 block text-xs font-bold text-slate-700">
+                    Mật khẩu
+                  </label>
+                  <div className="relative">
+                    <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      placeholder="Nhập mật khẩu"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-11 text-sm font-medium transition-all focus:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                      aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                      title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <span className="mt-1 flex items-center gap-1 text-[11px] text-slate-400">
+                    <Info className="h-3 w-3" />
+                    Mật khẩu mặc định do Đoàn khoa cấp:
+                    <strong className="font-semibold text-slate-600">{DEFAULT_PASSWORD}</strong>
+                  </span>
+                </div>
+
+                {error && (
+                  <div
+                    role="alert"
+                    className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700"
+                  >
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-blue-900 py-3.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-blue-800 disabled:opacity-60"
+                >
+                  {loading ? 'Đang xác thực...' : 'Đăng nhập'}
+                  {!loading && <ArrowRight className="h-4 w-4" />}
+                </button>
+              </form>
+
+              <div className="mt-5 rounded-xl border border-slate-100 bg-slate-50 p-3.5">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">
+                  Phân quyền sau khi đăng nhập
+                </p>
+                <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                  Hệ thống đối chiếu tài khoản với danh sách đã cấp và tự mở đúng không gian làm việc:
+                  <strong className="text-slate-700"> Quản trị viên</strong>,
+                  <strong className="text-slate-700"> Cán bộ Đoàn</strong> hoặc
+                  <strong className="text-slate-700"> Đoàn viên</strong>.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              {/* ADMIN Quick Login */}
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('bladao@kgc.edu.vn')}
-                className="w-full p-2.5 bg-slate-50 hover:bg-red-50/70 border border-slate-200 hover:border-red-200 rounded-xl flex items-center justify-between transition-colors text-left"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs shrink-0">
-                    AD
-                  </div>
-                  <div>
-                    <span className="font-bold text-xs text-slate-800 block">
-                      Bành Lê Anh Đào · Bí thư Đoàn khoa
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      Vai trò ADMIN · bladao@kgc.edu.vn
-                    </span>
-                  </div>
-                </div>
-                <span className="text-[11px] font-bold text-blue-900">Vào quản trị</span>
-              </button>
-
-              {/* CANBO Quick Login */}
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('thtkha@kgc.edu.vn')}
-                className="w-full p-2.5 bg-slate-50 hover:bg-blue-50/70 border border-slate-200 hover:border-blue-200 rounded-xl flex items-center justify-between transition-colors text-left"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs shrink-0">
-                    CB
-                  </div>
-                  <div>
-                    <span className="font-bold text-xs text-slate-800 block">
-                      Trương Hoàng Trung Kha · Cán bộ Đoàn
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-mono">
-                      Vai trò CANBO · Quản lý hoạt động & QR
-                    </span>
-                  </div>
-                </div>
-                <span className="text-[11px] font-bold text-blue-900">Vào điều hành</span>
-              </button>
-
-              {/* DVTN Quick Login Options from User List */}
-              <div className="pt-1">
-                <span className="text-[11px] font-bold text-slate-700 block mb-1">
-                  Đoàn viên thanh niên (Danh sách chính thức cấp tài khoản):
-                </span>
-                <div className="space-y-1.5">
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemoLogin('CK24KL3135')}
-                    className="w-full p-2 bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
-                        ĐV
-                      </div>
-                      <div>
-                        <span className="font-bold text-xs text-slate-800 block">Danh Minh Trí</span>
-                        <span className="text-[10px] text-slate-500 font-mono">CK24KL3135 · Lớp CGKL 9+K5</span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded">Đăng nhập</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemoLogin('CK24OT3319')}
-                    className="w-full p-2 bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
-                        ĐV
-                      </div>
-                      <div>
-                        <span className="font-bold text-xs text-slate-800 block">Bùi Vĩ Khiêm</span>
-                        <span className="text-[10px] text-slate-500 font-mono">CK24OT3319 · Lớp CN ÔTÔ 3 9+K5</span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded">Đăng nhập</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemoLogin('CX26OT2208')}
-                    className="w-full p-2 bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
-                        ĐV
-                      </div>
-                      <div>
-                        <span className="font-bold text-xs text-slate-800 block">Nguyễn Minh Hiếu</span>
-                        <span className="text-[10px] text-slate-500 font-mono">CX26OT2208 · Lớp CN ÔTÔ 2 K20</span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded">Đăng nhập</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleQuickDemoLogin('CK26LTOT53')}
-                    className="w-full p-2 bg-slate-50 hover:bg-emerald-50/80 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-[10px] shrink-0">
-                        ĐV
-                      </div>
-                      <div>
-                        <span className="font-bold text-xs text-slate-800 block">Phạm Chí Nghĩa</span>
-                        <span className="text-[10px] text-slate-500 font-mono">CK26LTOT53 · Lớp CN ÔTÔ 2 9+K4 (LT)</span>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/60 px-1.5 py-0.5 rounded">Đăng nhập</span>
-                  </button>
-                </div>
-              </div>
+            <div className="text-center text-[11px] leading-relaxed text-slate-500">
+              <p>
+                Quên hoặc cần cấp lại mật khẩu? Liên hệ Văn phòng Đoàn khoa Cơ khí
+                <br />
+                để được hỗ trợ cấp lại mật khẩu mặc định.
+              </p>
+              <p className="mt-2 text-[10px] text-slate-400">
+                Được phát triển bởi Đoàn khoa Cơ khí – Đoàn trường Cao đẳng Kiên Giang.
+              </p>
             </div>
           </div>
-        </div>
-
-        {/* Slogan */}
-        <div className="text-center">
-          <span className="text-xs font-semibold text-blue-900/80 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 inline-block">
-            ★ Kết nối đoàn viên - Số hóa hoạt động ★
-          </span>
-        </div>
+        </main>
       </div>
-
-      {/* Footer */}
-      <footer className="text-center text-xs text-slate-400 py-4 max-w-xl mx-auto">
-        <p className="font-medium text-slate-500">
-          Được phát triển bởi Đoàn khoa Cơ khí trực thuộc Đoàn trường Cao đẳng Kiên Giang.
-        </p>
-        <p className="text-[11px] text-slate-400 mt-0.5">
-          Hệ thống điểm danh QR động và quản lý ngày Công tác xã hội minh bạch, chuẩn xác.
-        </p>
-      </footer>
     </div>
   );
 };

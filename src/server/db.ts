@@ -14,12 +14,48 @@ import type {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DATA_DIR = path.resolve(__dirname, '../../data');
+// Khi chạy bằng tsx (src/server) hay bằng bundle (server.js) đều phải dùng
+// thư mục data của chính dự án, không phụ thuộc vị trí file đang chạy.
+const DATA_DIR = process.env.DATA_DIR
+  ? path.resolve(process.env.DATA_DIR)
+  : path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 
 // KGC Campus Coordinates (Cơ sở 425 Mạc Cửu, P. Vĩnh Thanh, TP. Rạch Giá, Kiên Giang)
 export const KGC_DEFAULT_LAT = 10.01254;
 export const KGC_DEFAULT_LNG = 105.08092;
+
+// Mật khẩu mặc định cấp cho mọi tài khoản Đoàn viên / Cán bộ
+export const DEFAULT_PASSWORD = 'Kgc@2410';
+
+// Bỏ dấu tiếng Việt để so khớp tên viết tắt (vd: "Bành Lê Anh Đào" -> "Banh Le Anh Dao")
+const removeDiacritics = (value: string): string =>
+  String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D');
+
+// Chuẩn hóa khóa đăng nhập: bỏ dấu, bỏ khoảng trắng, dấu chấm, gạch nối...
+const normalizeKey = (value: string): string =>
+  removeDiacritics(value).toLowerCase().replace(/[^a-z0-9]/g, '');
+
+// Tên viết tắt theo chữ cái đầu: "Bành Lê Anh Đào" -> "blad"
+const initialsKey = (fullName: string): string =>
+  normalizeKey(
+    String(fullName || '')
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((word) => removeDiacritics(word).charAt(0))
+      .join('')
+  );
+
+interface StoredCredential {
+  salt: string;
+  hash: string;
+  updated_at: string;
+}
 
 interface DatabaseSchema {
   profiles: UserProfile[];
@@ -28,6 +64,7 @@ interface DatabaseSchema {
   attendances: Attendance[];
   point_transactions: PointTransaction[];
   audit_logs: AuditLog[];
+  credentials?: Record<string, StoredCredential>; // key: user_id (không bao giờ trả về client)
   last_updated: string;
 }
 
@@ -222,6 +259,8 @@ class DatabaseService {
 
   constructor() {
     this.data = this.loadData();
+    // Cấp mật khẩu mặc định cho các tài khoản chưa có (kể cả dữ liệu cũ)
+    this.ensureCredentials();
     // Ensure active QR session for open activity act-002 on startup
     this.ensureActiveQRSessionForOpenActivities();
   }
@@ -356,6 +395,7 @@ class DatabaseService {
       attendances,
       point_transactions,
       audit_logs,
+      credentials: this.buildDefaultCredentials(profiles),
       last_updated: new Date().toISOString(),
     };
 
@@ -396,6 +436,139 @@ class DatabaseService {
     return this.data.profiles.find(p => p.id === id);
   }
 
+  // Tạo bản ghi mật khẩu (scrypt + salt riêng cho từng tài khoản)
+  private hashPassword(password: string, salt: string): string {
+    return crypto.scryptSync(String(password), salt, 32).toString('hex');
+  }
+
+  private createCredential(password: string = DEFAULT_PASSWORD): StoredCredential {
+    const salt = crypto.randomBytes(16).toString('hex');
+    return {
+      salt,
+      hash: this.hashPassword(password, salt),
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  private buildDefaultCredentials(profiles: UserProfile[]): Record<string, StoredCredential> {
+    const credentials: Record<string, StoredCredential> = {};
+    for (const profile of profiles) {
+      credentials[profile.id] = this.createCredential();
+    }
+    return credentials;
+  }
+
+  // Bổ sung mật khẩu mặc định cho tài khoản cũ chưa có mật khẩu
+  private ensureCredentials(): void {
+    if (!this.data.credentials) {
+      this.data.credentials = {};
+    }
+    let changed = false;
+    for (const profile of this.data.profiles) {
+      if (!this.data.credentials[profile.id]) {
+        this.data.credentials[profile.id] = this.createCredential();
+        changed = true;
+      }
+    }
+    if (changed) {
+      this.save();
+    }
+  }
+
+  public verifyPassword(userId: string, password: string): boolean {
+    if (!this.data.credentials) this.ensureCredentials();
+    const credential = this.data.credentials?.[userId];
+    if (!credential || !password) return false;
+    const attempt = Buffer.from(this.hashPassword(password, credential.salt), 'hex');
+    const expected = Buffer.from(credential.hash, 'hex');
+    return attempt.length === expected.length && crypto.timingSafeEqual(attempt, expected);
+  }
+
+  public setPassword(userId: string, newPassword: string): boolean {
+    if (!this.getProfileById(userId)) return false;
+    if (!this.data.credentials) this.data.credentials = {};
+    this.data.credentials[userId] = this.createCredential(newPassword);
+    this.save();
+    return true;
+  }
+
+  public resetPasswordToDefault(userId: string): boolean {
+    return this.setPassword(userId, DEFAULT_PASSWORD);
+  }
+
+  /**
+   * Tìm tài khoản theo "họ và tên viết tắt".
+   * Chấp nhận: mã đoàn viên, username (vd: bladao), email,
+   * chữ cái đầu của họ tên (vd: blad / b.l.a.đ), hoặc họ tên đầy đủ không dấu.
+   */
+  public findProfilesByIdentifier(identifier: string): UserProfile[] {
+    const raw = String(identifier || '').trim();
+    const key = normalizeKey(raw);
+    if (!key) return [];
+
+    // 1. Khớp chính xác & duy nhất: mã đoàn viên / username / email
+    const direct = this.data.profiles.filter(p =>
+      normalizeKey(p.code) === key ||
+      normalizeKey(p.username) === key ||
+      p.email.trim().toLowerCase() === raw.toLowerCase()
+    );
+    if (direct.length > 0) return direct;
+
+    // 2. Khớp theo chữ cái đầu của họ và tên (tên viết tắt)
+    const byInitials = this.data.profiles.filter(p => initialsKey(p.full_name) === key);
+    if (byInitials.length > 0) return byInitials;
+
+    // 3. Khớp theo họ tên đầy đủ (không phân biệt dấu / khoảng trắng)
+    return this.data.profiles.filter(p => normalizeKey(p.full_name) === key);
+  }
+
+  // Kiểm tra một tên đăng nhập đã bị dùng bởi mã đoàn viên / username / email khác chưa
+  private identityTaken(candidate: string, exceptUserId?: string): boolean {
+    const key = normalizeKey(candidate);
+    if (!key) return true;
+    return this.data.profiles.some(p =>
+      p.id !== exceptUserId && (
+        normalizeKey(p.code) === key ||
+        normalizeKey(p.username) === key ||
+        normalizeKey(p.email) === key
+      )
+    );
+  }
+
+  /**
+   * Cấp tên đăng nhập tự động từ họ và tên (chữ cái đầu, bỏ dấu).
+   * Nếu trùng họ tên hoặc trùng tên đăng nhập đã cấp, tự thêm ký tự đặc biệt:
+   *   blad -> blad.2 -> blad.3 ...
+   */
+  public generateUniqueUsername(fullName: string, fallbackSeed?: string): string {
+    const base = initialsKey(fullName) || normalizeKey(fallbackSeed || '') || 'doanvien';
+    const duplicatedFullName = this.data.profiles.some(
+      p => normalizeKey(p.full_name) === normalizeKey(fullName)
+    );
+
+    if (!duplicatedFullName && !this.identityTaken(base)) {
+      return base;
+    }
+
+    let suffix = 2;
+    while (this.identityTaken(`${base}.${suffix}`)) {
+      suffix++;
+    }
+    return `${base}.${suffix}`;
+  }
+
+  /** Đảm bảo tên đăng nhập do quản trị viên nhập vào không bị trùng */
+  public makeUsernameUnique(desired: string): string {
+    const base = normalizeKey(desired) || 'doanvien';
+    if (!this.identityTaken(base)) return base;
+
+    let suffix = 2;
+    while (this.identityTaken(`${base}.${suffix}`)) {
+      suffix++;
+    }
+    return `${base}.${suffix}`;
+  }
+
   public getProfileByEmailOrUsername(identifier: string): UserProfile | undefined {
     const norm = identifier.trim().toLowerCase();
     return this.data.profiles.find(p => 
@@ -407,19 +580,31 @@ class DatabaseService {
 
   public createProfile(profile: Omit<UserProfile, 'id' | 'created_at' | 'total_ctxh_days'>): UserProfile {
     const id = `usr-${crypto.randomBytes(4).toString('hex')}`;
+
+    // Cấp tên đăng nhập: ưu tiên tên do admin nhập, nếu trống thì sinh từ họ tên.
+    // Trùng nhau sẽ tự thêm ký tự đặc biệt (vd: blad.2).
+    const loginName = String(profile.username || '').trim()
+      ? this.makeUsernameUnique(profile.username)
+      : this.generateUniqueUsername(profile.full_name, profile.code);
+
     const newProfile: UserProfile = {
       ...profile,
+      username: loginName,
       id,
       total_ctxh_days: 0,
       created_at: new Date().toISOString(),
     };
     this.data.profiles.push(newProfile);
+    // Cấp mật khẩu mặc định Kgc@2410 cho tài khoản mới
+    if (!this.data.credentials) this.data.credentials = {};
+    this.data.credentials[newProfile.id] = this.createCredential();
     this.save();
     return newProfile;
   }
 
-  public bulkCreateProfiles(profiles: Omit<UserProfile, 'id' | 'created_at' | 'total_ctxh_days'>[]): { added: number; errors: string[] } {
+  public bulkCreateProfiles(profiles: Omit<UserProfile, 'id' | 'created_at' | 'total_ctxh_days'>[]): { added: number; errors: string[]; created: { code: string; full_name: string; username: string }[] } {
     const errors: string[] = [];
+    const created: { code: string; full_name: string; username: string }[] = [];
     let added = 0;
 
     for (const p of profiles) {
@@ -432,12 +617,13 @@ class DatabaseService {
         errors.push(`Email "${p.email}" đã tồn tại.`);
         continue;
       }
-      this.createProfile(p);
+      const profile = this.createProfile(p);
+      created.push({ code: profile.code, full_name: profile.full_name, username: profile.username });
       added++;
     }
 
     this.save();
-    return { added, errors };
+    return { added, errors, created };
   }
 
   public updateProfileStatus(id: string, status: 'active' | 'locked', actor: UserProfile): UserProfile | null {

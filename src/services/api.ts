@@ -46,10 +46,10 @@ export const api = {
   },
 
   // Auth
-  async login(identifier: string): Promise<{ user: UserProfile; token: string }> {
+  async login(identifier: string, password: string): Promise<{ user: UserProfile; token: string }> {
     const data = await this.request<{ user: UserProfile; token: string }>('/api/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ identifier }),
+      body: JSON.stringify({ identifier, password }),
     });
     this.setToken(data.token);
     return data;
@@ -64,15 +64,25 @@ export const api = {
     return this.request<{ profiles: UserProfile[] }>('/api/users');
   },
 
-  async createUser(userData: any): Promise<{ user: UserProfile }> {
-    return this.request<{ user: UserProfile }>('/api/users', {
+  async createUser(userData: any): Promise<{ user: UserProfile; defaultPassword?: string }> {
+    return this.request<{ user: UserProfile; defaultPassword?: string }>('/api/users', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
   },
 
-  async bulkCreateUsers(rows: any[]): Promise<{ added: number; errors: string[] }> {
-    return this.request<{ added: number; errors: string[] }>('/api/users/bulk', {
+  async bulkCreateUsers(rows: any[]): Promise<{
+    added: number;
+    errors: string[];
+    created: { code: string; full_name: string; username: string }[];
+    defaultPassword?: string;
+  }> {
+    return this.request<{
+      added: number;
+      errors: string[];
+      created: { code: string; full_name: string; username: string }[];
+      defaultPassword?: string;
+    }>('/api/users/bulk', {
       method: 'POST',
       body: JSON.stringify({ rows }),
     });

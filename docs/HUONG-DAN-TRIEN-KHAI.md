@@ -13,8 +13,19 @@ Repo: https://github.com/bladao-kgc/DIEMDANHSO
 | Cài dependencies | ✅ `node_modules` |
 | Build production | ✅ `dist/` + `server.js` |
 | Chạy thử | ✅ `http://localhost:3000` (API trả HTTP 200) |
-| Đăng nhập thử | ✅ tài khoản `bladao` (ADMIN) |
+| Đăng nhập | ✅ Tên viết tắt + mật khẩu mặc định `Kgc@2410` |
 | Dữ liệu | 📄 `data/db.json` (file JSON, tự lưu khi có thay đổi) |
+
+### Quy tắc đăng nhập mới
+
+- **Tên đăng nhập:** họ và tên viết tắt (chữ cái đầu, bỏ dấu, không khoảng trắng), ví dụ:
+  `Bành Lê Anh Đào` → `blad`; `Trương Hoàng Trung Kha` → `thtk`.
+- Hệ thống cũng chấp nhận: tên đăng nhập được cấp (`bladao`, `thtkha`), mã đoàn viên (`CK24KL3135`) hoặc họ tên đầy đủ.
+- **Mật khẩu mặc định:** `Kgc@2410` cho tất cả tài khoản đã cấp.
+- Sau khi đăng nhập, hệ thống **tự xác định vai trò** của tài khoản: `ADMIN` (Quản trị viên), `CANBO` (Cán bộ Đoàn) hoặc `DVTN` (Đoàn viên).
+- **Trùng họ tên khi cấp tài khoản:** tên đăng nhập tự thêm ký tự đặc biệt để không trùng, ví dụ `thtk` → `thtk.2` → `thtk.3`. Tên đăng nhập đã cấp hiển thị trong bảng "Danh sách Đoàn viên" và trong thông báo sau khi tạo/nhập tài khoản.
+- Nếu một tên viết tắt trùng nhiều tài khoản, hệ thống yêu cầu đăng nhập bằng tên đăng nhập đầy đủ (có hậu tố) hoặc mã đoàn viên.
+
 
 > **Lưu ý quan trọng về tên miền:** `diemdanhso.cokhi.cdkg.vn` hiện **chưa tồn tại trên DNS công cộng**
 > (kiểm tra bằng 8.8.8.8 và DNS của router FPT đều trả về *NXDOMAIN*, kể cả tên miền gốc `cdkg.vn`).
@@ -50,8 +61,9 @@ Local URL : http://localhost:3000
 
 Mở trình duyệt: <http://localhost:3000>
 
-- Đăng nhập quản trị: `bladao` (Bành Lê Anh Đào – Bí thư Đoàn khoa)
-- Đăng nhập đoàn viên (demo): `ck2401`, `ck2402`, `ck24ot3412`…
+- Đăng nhập quản trị: `blad` hoặc `bladao` — mật khẩu `Kgc@2410` (Bành Lê Anh Đào – Bí thư Đoàn khoa)
+- Đăng nhập cán bộ: `thtkha` — mật khẩu `Kgc@2410` (Trương Hoàng Trung Kha)
+- Đăng nhập đoàn viên (demo): `ck2401`, `ck2402`, `ck24ot3412`… — mật khẩu `Kgc@2410`
 
 ### Bước 1.4 — Dừng web
 
@@ -193,6 +205,63 @@ Get-NetIPAddress -AddressFamily IPv4 | Where-Object { $_.IPAddress -notlike '127
 
 ---
 
+## 2D. Chạy thật ngay hôm nay với miễn phí `ddskgc.duckdns.org`
+
+> Phù hợp khi chưa có tên miền riêng. DuckDNS miễn phí, chỉ hỗ trợ **HTTP** (không có HTTPS).
+> Vẫn dùng được trên máy tính; điện thoại có thể chặn camera/GPS khi không có HTTPS.
+
+### Bước 2D.1 — Tạo tên miền DuckDNS (2 phút)
+
+1. Mở <https://www.duckdns.org> → đăng nhập bằng Google / GitHub.
+2. Ở ô **subdomain**, nhập `ddskgc` → **add domain**.
+3. Copy **token** ở đầu trang (chuỗi dài).
+
+### Bước 2D.2 — Trỏ tên miền về máy chủ
+
+```powershell
+cd D:\CHUYENDOISO2026\DIEMDANHSO
+powershell -ExecutionPolicy Bypass -File .\scripts\duckdns-setup.ps1 -Token "DAN_TOKEN_VUA_COPY"
+```
+
+Script tự:
+- cập nhật IP công cộng hiện tại cho `ddskgc.duckdns.org`;
+- lưu token vào `%LOCALAPPDATA%\DDKSGC\duckdns.json` (không lên GitHub);
+- tạo Scheduled Task cập nhật IP mỗi 5 phút khi IP nhà mạng đổi.
+
+### Bước 2D.3 — Mở cổng trên router
+
+1. Mở `http://192.168.1.1` → đăng nhập router.
+2. Tìm **Port Forwarding / Virtual Server / NAT**.
+3. Thêm quy tắc: External Port `3000` → Internal Port `3000`, IP `192.168.1.128`, giao thức `TCP`.
+4. Lưu lại.
+
+Kiểm tra IP LAN thật của máy:
+
+```powershell
+ipconfig | Select-String "IPv4"
+```
+
+Nếu khác `192.168.1.128`, chạy lại script với `-LocalIp <IP đúng>`.
+
+### Bước 2D.4 — Truy cập
+
+- Trong LAN: <http://192.168.1.128:3000>
+- Từ Internet: <http://ddskgc.duckdns.org:3000>
+
+### 2D.5 — Cần HTTPS ngay (khuyến nghị cho camera/GPS)
+
+Chạy Cloudflare Quick Tunnel để có địa chỉ `https://...trycloudflare.com` trỏ về máy:
+
+```powershell
+& "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://localhost:3000
+```
+
+Dòng log có dạng `https://ten-ngau-nhien.trycloudflare.com` — gửi link này cho mọi người.
+Lưu ý: Quick Tunnel miễn phí **đổi link mỗi lần chạy**; muốn link cố định + HTTPS trên
+`ddskgc.duckdns.org` cần tên miền riêng và Cloudflare Tunnel (Phần 2A).
+
+---
+
 ## 3. Sao lưu & cập nhật
 
 ### 3.1 — Sao lưu dữ liệu (quan trọng)
@@ -231,7 +300,9 @@ Dữ liệu trong `data\db.json` **không** bị Git ghi đè (trừ khi bạn `
 | Tunnel báo lỗi 1033 | Tunnel chưa chạy hoặc hostname chưa route: chạy lại `cloudflare-tunnel.ps1 -RouteOnly` rồi khởi động tunnel |
 | Camera không mở trên điện thoại | Phải dùng HTTPS (2A) hoặc `localhost`; HTTP qua IP sẽ bị chặn |
 | GPS sai vị trí | Kiểm tra quyền vị trí của trình duyệt; bán kính mặc định 150 m quanh toạ độ hoạt động |
-| Quên mật khẩu/đăng nhập | Hệ thống đăng nhập bằng mã đoàn viên/email/username, không dùng mật khẩu; ADMIN: `bladao` |
+| Quên mật khẩu/đăng nhập | Mật khẩu mặc định `Kgc@2410`; đăng nhập bằng tên viết tắt (vd `blad`), tên tài khoản (`bladao`), mã ĐV hoặc họ tên đầy đủ |
+| Tên viết tắt bị trùng | Dùng tên đăng nhập đầy đủ có hậu tố (vd `thtk.2`) hoặc mã đoàn viên |
+| DuckDNS chưa vào được | Chạy lại `scripts\duckdns-setup.ps1`; kiểm tra đã mở cổng 3000 trên router và IP LAN đúng |
 
 ### Kiểm tra nhanh toàn hệ thống bằng API
 
@@ -256,6 +327,12 @@ powershell -ExecutionPolicy Bypass -File .\scripts\stop-web.ps1
 # Tên miền thật (Cloudflare)
 powershell -ExecutionPolicy Bypass -File .\scripts\cloudflare-tunnel.ps1 -Login   # 1 lần
 powershell -ExecutionPolicy Bypass -File .\scripts\cloudflare-tunnel.ps1          # mỗi lần chạy
+
+# Miễn phí ddskgc.duckdns.org (HTTP)
+powershell -ExecutionPolicy Bypass -File .\scripts\duckdns-setup.ps1 -Token "TOKEN"
+
+# HTTPS nhanh (link tạm, đổi mỗi lần chạy)
+& "C:\Program Files (x86)\cloudflared\cloudflared.exe" tunnel --url http://localhost:3000
 
 # Tên miền chỉ trên máy này
 #   (Run as administrator) scripts\setup-hosts-domain.bat

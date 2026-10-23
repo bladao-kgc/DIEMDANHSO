@@ -175,7 +175,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const handleCreateSingleUser = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.createUser(newSingleUser);
+      const res = await api.createUser(newSingleUser);
       setShowCreateUserModal(false);
       setNewSingleUser({
         code: '',
@@ -187,7 +187,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         phone: '',
       });
       loadData();
-      alert('Tạo tài khoản thành công!');
+      const name = res.user?.username ? `\nTên đăng nhập: ${res.user.username}` : '';
+      alert(`Tạo tài khoản thành công!${name}\nMật khẩu mặc định: Kgc@2410`);
     } catch (err: any) {
       alert(err.message || 'Lỗi tạo tài khoản.');
     }
@@ -250,7 +251,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     if (bulkParsedRows.length === 0) return;
     try {
       const res = await api.bulkCreateUsers(bulkParsedRows);
-      alert(`Đã nhập thành công ${res.added} tài khoản đoàn viên!`);
+      const issued = (res.created || [])
+        .map((c) => `• ${c.full_name} (${c.code}) → ${c.username}`)
+        .slice(0, 15)
+        .join('\n');
+      const more = (res.created?.length || 0) > 15 ? `\n... và ${(res.created?.length || 0) - 15} tài khoản khác` : '';
+      alert(
+        `Đã nhập thành công ${res.added} tài khoản đoàn viên!\n` +
+        `Mật khẩu mặc định: ${res.defaultPassword || 'Kgc@2410'}\n\n` +
+        `Tên đăng nhập đã cấp (trùng tên sẽ tự thêm ký tự):\n${issued}${more}`
+      );
       setShowBulkImportModal(false);
       setBulkInputText('');
       setBulkParsedRows([]);
@@ -525,6 +535,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <tr>
                   <th className="py-3 px-4">Mã ĐV / Cán bộ</th>
                   <th className="py-3 px-4">Họ và tên</th>
+                  <th className="py-3 px-4">Tên đăng nhập</th>
                   <th className="py-3 px-4">Lớp</th>
                   <th className="py-3 px-4">Vai trò</th>
                   <th className="py-3 px-4 text-right">Tổng ngày CTXH</th>
@@ -535,7 +546,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <tbody className="divide-y divide-slate-100">
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-400 italic">
+                    <td colSpan={8} className="py-8 text-center text-slate-400 italic">
                       Không tìm thấy đoàn viên nào phù hợp.
                     </td>
                   </tr>
@@ -544,6 +555,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <tr key={u.id} className="hover:bg-slate-50/60 transition-colors">
                       <td className="py-3 px-4 font-mono font-bold text-slate-900">{u.code}</td>
                       <td className="py-3 px-4 font-medium text-slate-900">{u.full_name}</td>
+                      <td className="py-3 px-4">
+                        <span className="inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-blue-800">
+                          {u.username}
+                        </span>
+                      </td>
                       <td className="py-3 px-4 text-slate-600">{u.class_name}</td>
                       <td className="py-3 px-4">
                         <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${

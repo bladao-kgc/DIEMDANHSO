@@ -24,14 +24,30 @@ const getAuthUser = (req: Request) => {
 
 // --- AUTH API ---
 app.post('/api/auth/login', (req: Request, res: Response) => {
-  const { identifier } = req.body;
-  if (!identifier) {
-    return res.status(400).json({ error: 'Vui lòng nhập mã đoàn viên, email hoặc tên đăng nhập.' });
+  const { identifier, password } = req.body || {};
+
+  if (!identifier || !String(identifier).trim()) {
+    return res.status(400).json({ error: 'Vui lòng nhập họ và tên viết tắt của bạn.' });
+  }
+  if (!password || !String(password)) {
+    return res.status(400).json({ error: 'Vui lòng nhập mật khẩu.' });
   }
 
-  const profile = db.getProfileByEmailOrUsername(identifier);
-  if (!profile) {
-    return res.status(401).json({ error: 'Không tìm thấy tài khoản trong hệ thống. Vui lòng kiểm tra lại thông tin.' });
+  const matches = db.findProfilesByIdentifier(String(identifier));
+
+  if (matches.length === 0) {
+    return res.status(401).json({ error: 'Không tìm thấy tài khoản với tên viết tắt này. Vui lòng kiểm tra lại hoặc liên hệ Văn phòng Đoàn khoa.' });
+  }
+  if (matches.length > 1) {
+    return res.status(409).json({
+      error: 'Tên viết tắt này trùng với nhiều tài khoản. Vui lòng đăng nhập bằng mã đoàn viên hoặc tên tài khoản được cấp (ví dụ: bladao, thtkha).',
+    });
+  }
+
+  const profile = matches[0];
+
+  if (!db.verifyPassword(profile.id, String(password))) {
+    return res.status(401).json({ error: 'Mật khẩu không đúng. Mật khẩu mặc định là Kgc@2410.' });
   }
 
   if (profile.status === 'locked') {
@@ -90,7 +106,7 @@ app.post('/api/users', (req: Request, res: Response) => {
     code: code.trim().toUpperCase(),
     full_name: full_name.trim(),
     email: email.trim().toLowerCase(),
-    username: (username || code).trim().toLowerCase(),
+    username: username ? String(username).trim() : '',
     role: role || 'DVTN',
     class_name: class_name || 'Đoàn khoa Cơ khí',
     branch_name: branch_name || 'Chi đoàn Cơ khí',
@@ -99,8 +115,8 @@ app.post('/api/users', (req: Request, res: Response) => {
     phone: phone || '',
   });
 
-  db.logAudit(actor, 'CREATE_USER', 'USER', newProfile.id, `Tạo tài khoản mới: ${newProfile.full_name} (${newProfile.code})`);
-  res.json({ user: newProfile });
+  db.logAudit(actor, 'CREATE_USER', 'USER', newProfile.id, `Tạo tài khoản mới: ${newProfile.full_name} (${newProfile.code}) - Tên đăng nhập: ${newProfile.username}`);
+  res.json({ user: newProfile, defaultPassword: 'Kgc@2410' });
 });
 
 app.post('/api/users/bulk', (req: Request, res: Response) => {
@@ -118,7 +134,7 @@ app.post('/api/users/bulk', (req: Request, res: Response) => {
     code: String(r.code || '').trim().toUpperCase(),
     full_name: String(r.full_name || '').trim(),
     email: String(r.email || '').trim().toLowerCase(),
-    username: String(r.username || r.code || '').trim().toLowerCase(),
+    username: String(r.username || '').trim().toLowerCase(),
     role: (r.role === 'CANBO' || r.role === 'ADMIN' ? r.role : 'DVTN') as any,
     class_name: String(r.class_name || 'CĐ Cơ khí').trim(),
     branch_name: String(r.branch_name || 'Chi đoàn Cơ khí').trim(),
@@ -129,7 +145,7 @@ app.post('/api/users/bulk', (req: Request, res: Response) => {
 
   const result = db.bulkCreateProfiles(profilesToCreate);
   db.logAudit(actor, 'BULK_IMPORT_USERS', 'USER', 'BULK', `Nhập hàng loạt thành công ${result.added} tài khoản đoàn viên.`);
-  res.json(result);
+  res.json({ ...result, defaultPassword: 'Kgc@2410' });
 });
 
 app.patch('/api/users/:id/status', (req: Request, res: Response) => {

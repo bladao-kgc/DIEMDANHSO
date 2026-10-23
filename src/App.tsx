@@ -29,10 +29,7 @@ export default function App() {
         setCurrentUser(res.user);
         setInitialTabForRole(res.user.role);
       } else {
-        // Default to admin demo user for immediate review, or let user log in
-        const res = await api.login('bladao@kgc.edu.vn');
-        setCurrentUser(res.user);
-        setInitialTabForRole(res.user.role);
+        setCurrentUser(null);
       }
     } catch {
       api.removeToken();
@@ -77,21 +74,6 @@ export default function App() {
     setCurrentUser(null);
   };
 
-  const handleSwitchDemoRole = async (targetRole: UserRole) => {
-    try {
-      let identifier = 'bladao@kgc.edu.vn'; // ADMIN
-      if (targetRole === 'CANBO') identifier = 'thtkha@kgc.edu.vn';
-      if (targetRole === 'DVTN') identifier = 'CK24KL3135'; // Danh Minh Trí (CGKL 9+K5)
-
-      const res = await api.login(identifier);
-      setCurrentUser(res.user);
-      setInitialTabForRole(res.user.role);
-      fetchActiveActivities();
-    } catch (e: any) {
-      alert(e.message || 'Lỗi chuyển vai trò demo.');
-    }
-  };
-
   const handleOpenScanner = async () => {
     await fetchActiveActivities();
     setIsScannerOpen(true);
@@ -121,7 +103,6 @@ export default function App() {
           currentTab={currentTab}
           onTabChange={setCurrentTab}
           onLogout={handleLogout}
-          onSwitchDemoRole={handleSwitchDemoRole}
         />
 
         {/* Main Content Container */}

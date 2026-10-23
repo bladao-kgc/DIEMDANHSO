@@ -949,6 +949,28 @@
   ],
   "audit_logs": [
     {
+      "id": "log-648d52b0",
+      "actor_id": "usr-admin-01",
+      "actor_name": "Bành Lê Anh Đào",
+      "actor_role": "ADMIN",
+      "action": "LOGIN",
+      "entity_type": "USER",
+      "entity_id": "usr-admin-01",
+      "details": "Đăng nhập thành công với vai trò: ADMIN",
+      "timestamp": "2026-10-23T17:01:05.235Z"
+    },
+    {
+      "id": "log-4f9d2844",
+      "actor_id": "usr-admin-01",
+      "actor_name": "Bành Lê Anh Đào",
+      "actor_role": "ADMIN",
+      "action": "LOGIN",
+      "entity_type": "USER",
+      "entity_id": "usr-admin-01",
+      "details": "Đăng nhập thành công với vai trò: ADMIN",
+      "timestamp": "2026-10-23T17:00:36.402Z"
+    },
+    {
       "id": "log-030e64a1",
       "actor_id": "usr-dv01",
       "actor_name": "Trương Hoàng Trung Kha",
@@ -982,5 +1004,117 @@
       "timestamp": "2026-10-23T16:15:01.285Z"
     }
   ],
-  "last_updated": "2026-10-23T16:15:18.349Z"
+  "last_updated": "2026-10-23T17:01:05.235Z",
+  "credentials": {
+    "usr-admin-01": {
+      "salt": "56c3726d0b40f3c13dc9a263664fcc0e",
+      "hash": "2b6783fd9564980ed52725929fc8dddc732b60bb5ee09a3485dd1d3ef48c737b",
+      "updated_at": "2026-10-23T17:00:11.695Z"
+    },
+    "usr-canbo-01": {
+      "salt": "93d9d68e2051480eb2edb08c2c5b97fe",
+      "hash": "eb3372e557ae101140240f356e518af240d1847187a87d715e5a82913a713e72",
+      "updated_at": "2026-10-23T17:00:11.738Z"
+    },
+    "usr-dv01": {
+      "salt": "4cd4463cc2f90dc9fcf3aac7630e2dd7",
+      "hash": "baade31c5cd95d94ca08f1d90c16744ea51c254ea4f3b74c09506c89cff7e88e",
+      "updated_at": "2026-10-23T17:00:11.781Z"
+    },
+    "usr-dv02": {
+      "salt": "96c28825f079324b3e1fb0a00bab6672",
+      "hash": "e70c3c452ccaf89d12c3097e33b643dbc318f35f41f25a47df153f4ebe734d8a",
+      "updated_at": "2026-10-23T17:00:11.819Z"
+    },
+    "usr-dv03": {
+      "salt": "baae4e1b3d7fee365c1d2c21349a952e",
+      "hash": "654dce867b10cb4cd196e1bd65b43954a4fd47cae2ed6828049a07a941a6d70d",
+      "updated_at": "2026-10-23T17:00:11.859Z"
+    },
+    "usr-dv04": {
+      "salt": "9fa1e6d37b3c27be9fe13a131a88b9dd",
+      "hash": "820c16fc943b8a2b4ac5ac4ed7988783d8c0f22f62a32b23561a2dc0445f2356",
+      "updated_at": "2026-10-23T17:00:11.896Z"
+    },
+    "usr-dv05": {
+      "salt": "507589f50780e971c09148058aab46a5",
+      "hash": "247792c7884bca773c1a723c6f45c91e770a678fee5f4cd98703a7abee131b71",
+      "updated_at": "2026-10-23T17:00:11.934Z"
+    },
+    "usr-ck06": {
+      "salt": "04b8b257e979e16dea92ab588c70e69d",
+      "hash": "659f79de77807111334f8db99458e73b8915bdc43dbb94016aff07e8892fd63c",
+      "updated_at": "2026-10-23T17:00:11.973Z"
+    },
+    "usr-ck07": {
+      "salt": "55c86a66afe0a4c058744245f9d674fd",
+      "hash": "ec197c57740a4b0f95b210491e26448149c6f47a8d7059c3fba06a38c03d2ba6",
+      "updated_at": "2026-10-23T17:00:12.013Z"
+    },
+    "usr-ck08": {
+      "salt": "bc5033fda589924352d70d35ba3aa8fa",
+      "hash": "c33e479bfdeb8f5e240a36435e4271b56090cc37fb107023aa692a03b0ab5aa4",
+      "updated_at": "2026-10-23T17:00:12.050Z"
+    },
+    "usr-ck09": {
+      "salt": "d8406ba0661b6c9af3b355730694411a",
+      "hash": "6999440124820476ad8987f2c4b0f4412b00e5d058da9d9f002d1606a6f1dd8a",
+      "updated_at": "2026-10-23T17:00:12.086Z"
+    },
+    "usr-ck10": {
+      "salt": "2050a7e464911e89a3040e57da544c50",
+      "hash": "365b704e5ea9b1cb1703ebe3afffb2c619764edb7847d5212cca4eb53ff694da",
+      "updated_at": "2026-10-23T17:00:12.123Z"
+    },
+    "usr-ck11": {
+      "salt": "408902a124b70942edd01e979c6923e4",
+      "hash": "508962e10885d4199afdbb91edd6847be638df0cb37fe0193a90983dafbdbefd",
+      "updated_at": "2026-10-23T17:00:12.162Z"
+    },
+    "usr-ck12": {
+      "salt": "e686dd3423b9033cbf7d62a9c70e8445",
+      "hash": "d311451b2a6c537382768dedf3831e985be4df9d3db34f645681908ff30b6662",
+      "updated_at": "2026-10-23T17:00:12.199Z"
+    },
+    "usr-ck13": {
+      "salt": "5317161c9caa28481bf91e77353694ee",
+      "hash": "4817aed1ba2b75fa78aef42ed6ba38d649347f31bb54e4f14dd930e2c8a26216",
+      "updated_at": "2026-10-23T17:00:12.236Z"
+    },
+    "usr-ck14": {
+      "salt": "6dcff873972ac3f8cf03764cd79a652d",
+      "hash": "bc9ca2702624e6c41c70f5cf8e440c3132f300d3e0ad76d2a7e42eb0e0d1d3a6",
+      "updated_at": "2026-10-23T17:00:12.273Z"
+    },
+    "usr-ck15": {
+      "salt": "908996170312044115a6faa43202cd7e",
+      "hash": "aacfe1199097a7c0520d1877353ff0d9a4d87353af05fa657d215b6210bd0877",
+      "updated_at": "2026-10-23T17:00:12.311Z"
+    },
+    "usr-ck16": {
+      "salt": "32dc0587dd7d8799d6ddd97f0df497df",
+      "hash": "472a809615af7de5f85a26c880169583aa4c826ffcf960e8c76b28a9647e6a23",
+      "updated_at": "2026-10-23T17:00:12.348Z"
+    },
+    "usr-ck17": {
+      "salt": "039feb9f67c11be8333f0eba9caed718",
+      "hash": "81ddfee132582b15db38a376cb823ee3c22b2db33e603ecbec20bb881981f867",
+      "updated_at": "2026-10-23T17:00:12.385Z"
+    },
+    "usr-ck18": {
+      "salt": "c632c87aa95250974900f9f513894f42",
+      "hash": "5ea5306e6e795cb79f84fe7a05ecaef4a243600a854adb84c19eea1950814b1e",
+      "updated_at": "2026-10-23T17:00:12.421Z"
+    },
+    "usr-ck19": {
+      "salt": "193e50e9321e0ea2f69b793898143335",
+      "hash": "86eabd02e27e5aed0478b761f630e0291c6b0bcc693d70e95d02f9e6bcf759fb",
+      "updated_at": "2026-10-23T17:00:12.459Z"
+    },
+    "usr-ck20": {
+      "salt": "fc9aa5a3de0285a8823ea21869a3cc5d",
+      "hash": "d51248063863a482d1210dc1561e7f50eb26305ba48fa7105e6b25a4f0a5e2b7",
+      "updated_at": "2026-10-23T17:00:12.496Z"
+    }
+  }
 }
