@@ -103,7 +103,19 @@
 - Mật khẩu lưu dạng **scrypt + salt riêng từng tài khoản**, không bao giờ trả về trình duyệt.
 - Khôi phục dữ liệu mẫu (dùng khi demo, không dùng khi đã có dữ liệu thật).
 
-### 3.8. Tương thích thiết bị
+### 3.8. Thống kê lượt truy cập (chỉ ADMIN)
+
+- **Đang truy cập cùng lúc:** đếm theo phiên hoạt động trong 90 giây gần nhất.
+- **Cao nhất cùng lúc:** ghi nhận đỉnh lượt truy cập đồng thời trong thời gian vận hành.
+- **Thống kê nhanh:** hôm nay, tháng này, năm này (lượt truy cập & khách duy nhất).
+- **Báo cáo theo ngày:** biểu đồ/danh sách 30 ngày gần nhất (lượt + khách duy nhất).
+- **Báo cáo theo tháng / theo năm:** tổng hợp theo từng tháng, từng năm.
+- **Truy cập gần đây:** hiển thị phương thức, đường dẫn, vai trò người truy cập, thời gian.
+- **Khách duy nhất:** xác định theo kết hợp IP + User-Agent (hash).
+- **Lưu trữ:** dữ liệu lưu trong `data/traffic.json`, tự động dọn các bản ghi cũ hơn 90 ngày. Bỏ qua file tĩnh (`.js`, `.css`, `.png`, `.svg`, assets).
+- **Phân quyền:** chỉ tài khoản `ADMIN` mới xem được tab **"Thống kê truy cập"**.
+
+### 3.9. Tương thích thiết bị
 
 | Thiết bị | Điều chỉnh |
 |---|---|

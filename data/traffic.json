@@ -1,0 +1,27 @@
+{
+  "hits": [
+    {
+      "id": "th-a10d7398edff",
+      "ts": 1792780528889,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "127.0.0.1",
+      "path": "/",
+      "method": "GET",
+      "uaHash": "ebd33c5d3896fe0a"
+    }
+  ],
+  "sessions": {
+    "127.0.0.1|anon|ebd33c5d3896fe0a": {
+      "key": "127.0.0.1|anon|ebd33c5d3896fe0a",
+      "ip": "127.0.0.1",
+      "lastSeen": 1792780528889
+    }
+  },
+  "peakConcurrent": 1,
+  "peakConcurrentAt": "2026-10-23T18:35:28.890Z",
+  "totalUniqueSet": [
+    "127.0.0.1|ebd33c5d3896fe0a"
+  ]
+}

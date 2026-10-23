@@ -18,6 +18,7 @@ Repo: https://github.com/bladao-kgc/DIEMDANHSO
 | Truy cập công khai | ✅ `https://diemdanhsockkgc.tail0851f0.ts.net/` (Tailscale Funnel, HTTPS) |
 | Tự chạy khi mở laptop | ✅ Shortcut trong thư mục Startup của Windows |
 | Cấp lại mật khẩu / xóa tài khoản | ✅ Chỉ ADMIN, có ghi nhật ký |
+| Thống kê truy cập đồng thời & theo thời gian | ✅ Chỉ ADMIN, lưu `data/traffic.json` |
 
 ### Địa chỉ truy cập chính thức
 
@@ -323,6 +324,39 @@ Mở trên điện thoại (tắt Wi-Fi, dùng 4G): https://diemdanhsockkgc.tail
 
 # Bật lại
 & "$env:ProgramFiles\Tailscale\tailscale.exe" funnel --bg 3000
+```
+
+## 2H. Thống kê lượt truy cập
+
+Hệ thống tự ghi nhận mỗi lượt truy cập (trừ file tĩnh). Chỉ tài khoản **ADMIN** mới xem được.
+
+### Cách xem
+
+1. Đăng nhập bằng tài khoản `ADMIN`.
+2. Vào thanh điều hướng → **Thống kê truy cập** (hoặc tab tương ứng).
+3. Xem các chỉ số:
+
+| Chỉ số | Ý nghĩa |
+|---|---|
+| **Đang truy cập** | Số phiên đang hoạt động trong 90 giây gần nhất (đồng thời cùng lúc) |
+| **Cao nhất cùng lúc** | Đỉnh số người truy cập đồng thời ghi nhận được |
+| **Hôm nay / Tháng này / Năm này** | Lượt truy cập & khách duy nhất |
+| **Theo ngày (30 ngày gần nhất)** | Lượt + khách duy nhất theo từng ngày |
+| **Theo tháng / theo năm** | Tổng hợp lâu dài |
+| **Truy cập gần đây** | Lịch sử 20 lượt gần nhất (phương thức, đường dẫn, vai trò, thời gian) |
+
+### Dữ liệu lưu trữ
+
+- File: `data/traffic.json`
+- Khách duy nhất: xác định bằng hash `IP + User-Agent`
+- Tự động xóa bản ghi > 90 ngày để giữ file gọn
+- Chỉ ghi nhận trang/API chính, bỏ qua `.js`, `.css`, `.png`, `.svg`, `assets`
+
+### API (chỉ ADMIN)
+
+```http
+GET /api/stats/traffic
+Authorization: Bearer <token-admin>
 ```
 
 > Tailscale Funnel do dịch vụ Tailscale tự chạy cùng Windows. Nếu laptop tắt nguồn hoặc mất Internet, link công khai sẽ ngừng hoạt động cho đến khi máy bật lại.

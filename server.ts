@@ -22,6 +22,17 @@ const getAuthUser = (req: Request) => {
   return db.getProfileById(token) || null;
 };
 
+// --- TRAFFIC ANALYTICS MIDDLEWARE ---
+app.use((req: Request, res: Response, next) => {
+  try {
+    const user = getAuthUser(req);
+    db.recordTraffic(req, user?.id, user?.role);
+  } catch {
+    // Bỏ qua lỗi ghi nhận để không ảnh hưởng request
+  }
+  next();
+});
+
 // --- AUTH API ---
 app.post('/api/auth/login', (req: Request, res: Response) => {
   const { identifier, password } = req.body || {};
@@ -410,6 +421,16 @@ app.get('/api/audit-logs', (req: Request, res: Response) => {
 
 app.get('/api/stats/dashboard', (_req: Request, res: Response) => {
   const stats = db.getDashboardStats();
+  res.json({ stats });
+});
+
+// --- TRAFFIC STATS API (ADMIN) ---
+app.get('/api/stats/traffic', (req: Request, res: Response) => {
+  const user = getAuthUser(req);
+  if (!user || user.role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Chỉ Quản trị viên mới được xem thống kê truy cập.' });
+  }
+  const stats = db.getTrafficStats();
   res.json({ stats });
 });
 

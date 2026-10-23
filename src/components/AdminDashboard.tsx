@@ -28,7 +28,11 @@ import {
   History,
   X,
   KeyRound,
-  Trash2
+  Trash2,
+  BarChart3,
+  Clock,
+  Globe,
+  Activity as ActivityIcon
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -49,6 +53,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [trafficStats, setTrafficStats] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Filters
@@ -102,18 +107,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const loadData = async () => {
     setLoading(true);
     try {
-      const [sRes, aRes, uRes, attRes, logRes] = await Promise.all([
+      const [sRes, aRes, uRes, attRes, logRes, tRes] = await Promise.all([
         api.getDashboardStats(),
         api.getActivities(),
         api.getUsers(),
         api.getAttendances(),
         api.getAuditLogs(),
+        api.getTrafficStats().catch(() => ({ stats: null })),
       ]);
       setStats(sRes.stats);
       setActivities(aRes.activities);
       setUsers(uRes.profiles);
       setAttendances(attRes.attendances);
       setAuditLogs(logRes.logs);
+      if (tRes?.stats) setTrafficStats(tRes.stats);
     } catch (e: any) {
       console.error('Error loading dashboard data:', e);
     } finally {
@@ -767,6 +774,130 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 )}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: THỐNG KÊ TRUY CẬP */}
+      {currentTab === 'traffic' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-500 uppercase">Đang truy cập</span>
+                <ActivityIcon className="w-4 h-4 text-emerald-600" />
+              </div>
+              <div className="text-2xl font-extrabold text-emerald-700 mt-1">{trafficStats?.concurrentNow || 0}</div>
+              <div className="text-[11px] text-slate-400">trong 90 giây gần nhất</div>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-500 uppercase">Cao nhất cùng lúc</span>
+                <BarChart3 className="w-4 h-4 text-blue-700" />
+              </div>
+              <div className="text-2xl font-extrabold text-blue-900 mt-1">{trafficStats?.peakConcurrent || 0}</div>
+              <div className="text-[11px] text-slate-400">{trafficStats?.peakConcurrentAt ? new Date(trafficStats.peakConcurrentAt).toLocaleString('vi-VN') : '-'}</div>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-500 uppercase">Hôm nay</span>
+                <Clock className="w-4 h-4 text-amber-600" />
+              </div>
+              <div className="text-xl font-extrabold text-slate-900 mt-1">{trafficStats?.today?.hits || 0} lượt</div>
+              <div className="text-[11px] text-slate-400">{trafficStats?.today?.unique || 0} khách duy nhất</div>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-500 uppercase">Tháng này</span>
+                <Calendar className="w-4 h-4 text-slate-600" />
+              </div>
+              <div className="text-xl font-extrabold text-slate-900 mt-1">{trafficStats?.thisMonth?.hits || 0} lượt</div>
+              <div className="text-[11px] text-slate-400">{trafficStats?.thisMonth?.unique || 0} khách duy nhất</div>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-slate-500 uppercase">Năm này</span>
+                <Globe className="w-4 h-4 text-slate-600" />
+              </div>
+              <div className="text-xl font-extrabold text-slate-900 mt-1">{trafficStats?.thisYear?.hits || 0} lượt</div>
+              <div className="text-[11px] text-slate-400">{trafficStats?.thisYear?.unique || 0} khách duy nhất</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-slate-200">
+                <h3 className="font-bold text-sm text-slate-900">Lượt truy cập theo ngày (30 ngày gần nhất)</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50 text-slate-500">
+                    <tr>
+                      <th className="p-2.5">Ngày</th>
+                      <th className="p-2.5 text-right">Lượt</th>
+                      <th className="p-2.5 text-right">Khách duy nhất</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {(trafficStats?.byDate || []).map((d: any) => (
+                      <tr key={d.date}>
+                        <td className="p-2.5 font-mono">{d.date}</td>
+                        <td className="p-2.5 text-right font-mono">{d.hits}</td>
+                        <td className="p-2.5 text-right font-mono text-slate-500">{d.unique}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+              <div className="p-4 border-b border-slate-200">
+                <h3 className="font-bold text-sm text-slate-900">Lượt truy cập theo tháng / năm</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2">
+                <div className="border-r border-slate-100">
+                  <div className="p-2.5 bg-slate-50 text-xs font-semibold text-slate-500">Theo tháng</div>
+                  <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
+                    {(trafficStats?.byMonth || []).map((m: any) => (
+                      <div key={m.month} className="flex items-center justify-between p-2.5 text-xs">
+                        <span className="font-mono">{m.month}</span>
+                        <span className="font-mono">{m.hits} / <span className="text-slate-400">{m.unique}</span></span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <div className="p-2.5 bg-slate-50 text-xs font-semibold text-slate-500">Theo năm</div>
+                  <div className="divide-y divide-slate-100">
+                    {(trafficStats?.byYear || []).map((y: any) => (
+                      <div key={y.year} className="flex items-center justify-between p-2.5 text-xs">
+                        <span className="font-mono">{y.year}</span>
+                        <span className="font-mono">{y.hits} / <span className="text-slate-400">{y.unique}</span></span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-slate-200">
+              <h3 className="font-bold text-sm text-slate-900">Truy cập gần đây</h3>
+              <p className="text-xs text-slate-500">Chỉ ghi nhận trang chính, bỏ qua file tĩnh</p>
+            </div>
+            <div className="divide-y divide-slate-100 max-h-72 overflow-y-auto">
+              {(trafficStats?.recent || []).map((h: any) => (
+                <div key={h.id} className="flex items-center justify-between p-3 text-xs gap-3">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="font-mono text-slate-400">{h.method}</span>
+                    <span className="truncate">{h.path}</span>
+                    {h.userId && <span className="text-[10px] bg-blue-50 text-blue-700 px-1 rounded">{h.role}</span>}
+                  </div>
+                  <span className="font-mono text-[10px] text-slate-400 shrink-0">{new Date(h.ts).toLocaleString('vi-VN')}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}

@@ -70,6 +70,7 @@ Hệ thống **đang chạy thật** tại Đoàn khoa Cơ khí, CĐ Kiên Giang
 - Nhật ký thao tác (audit log) đầy đủ.
 - Giao diện responsive cho điện thoại, máy tính bảng, máy tính.
 - Truy cập công khai qua HTTPS, dùng được trên mọi Wi-Fi/4G.
+- **Thống kê lượt truy cập:** theo dõi người đang truy cập cùng lúc, cao nhất cùng lúc, báo cáo theo ngày/tháng/năm (chỉ ADMIN).
 
 **Công nghệ:** React + TypeScript + Tailwind (giao diện), Node.js/Express (máy chủ), lưu trữ JSON file (dễ sao lưu, không cần cài database), mã hóa mật khẩu scrypt + salt riêng từng tài khoản, QR động ký phiên.
 

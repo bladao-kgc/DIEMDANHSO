@@ -189,6 +189,10 @@ export const api = {
     return this.request('/api/stats/dashboard');
   },
 
+  async getTrafficStats(): Promise<{ stats: any }> {
+    return this.request('/api/stats/traffic');
+  },
+
   async resetDemoData(): Promise<{ success: boolean; message: string }> {
     return this.request('/api/demo/reset', {
       method: 'POST',

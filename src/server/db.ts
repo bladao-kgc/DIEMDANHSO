@@ -20,6 +20,52 @@ const DATA_DIR = process.env.DATA_DIR
   ? path.resolve(process.env.DATA_DIR)
   : path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+const TRAFFIC_FILE = path.join(DATA_DIR, 'traffic.json');
+
+export interface TrafficHit {
+  id: string;
+  ts: number;
+  dateKey: string;
+  monthKey: string;
+  yearKey: string;
+  ip: string;
+  path: string;
+  method: string;
+  userId?: string;
+  role?: any;
+  uaHash?: string;
+}
+
+export interface TrafficSession {
+  key: string;
+  userId?: string;
+  role?: any;
+  ip: string;
+  lastSeen: number;
+}
+
+export interface TrafficStats {
+  totalHits: number;
+  totalUniqueVisitors: number;
+  concurrentNow: number;
+  peakConcurrent: number;
+  peakConcurrentAt: string | null;
+  today: { hits: number; unique: number; byHour: Record<string, number> };
+  thisMonth: { hits: number; unique: number };
+  thisYear: { hits: number; unique: number };
+  byDate: Array<{ date: string; hits: number; unique: number }>;
+  byMonth: Array<{ month: string; hits: number; unique: number }>;
+  byYear: Array<{ year: string; hits: number; unique: number }>;
+  recent: TrafficHit[];
+}
+
+interface TrafficData {
+  hits: TrafficHit[];
+  sessions: Record<string, TrafficSession>;
+  peakConcurrent: number;
+  peakConcurrentAt: string | null;
+  totalUniqueSet: string[];
+}
 
 // KGC Campus Coordinates (Cơ sở 425 Mạc Cửu, P. Vĩnh Thanh, TP. Rạch Giá, Kiên Giang)
 export const KGC_DEFAULT_LAT = 10.01254;
@@ -263,6 +309,7 @@ class DatabaseService {
     this.ensureCredentials();
     // Ensure active QR session for open activity act-002 on startup
     this.ensureActiveQRSessionForOpenActivities();
+    this.loadTrafficData();
   }
 
   private loadData(): DatabaseSchema {
@@ -1028,6 +1075,222 @@ class DatabaseService {
       timestamp: new Date().toISOString(),
     });
     this.save();
+  }
+
+  // --- TRAFFIC ANALYTICS ---
+  private trafficData: TrafficData = {
+    hits: [],
+    sessions: {},
+    peakConcurrent: 0,
+    peakConcurrentAt: null,
+    totalUniqueSet: [],
+  };
+
+  private loadTrafficData(): void {
+    try {
+      if (fs.existsSync(TRAFFIC_FILE)) {
+        const content = fs.readFileSync(TRAFFIC_FILE, 'utf-8');
+        const parsed = JSON.parse(content);
+        if (parsed && Array.isArray(parsed.hits)) {
+          this.trafficData = {
+            hits: parsed.hits || [],
+            sessions: parsed.sessions || {},
+            peakConcurrent: parsed.peakConcurrent || 0,
+            peakConcurrentAt: parsed.peakConcurrentAt || null,
+            totalUniqueSet: parsed.totalUniqueSet || [],
+          };
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load traffic.json:', e);
+    }
+  }
+
+  private saveTrafficData(): void {
+    try {
+      if (!fs.existsSync(DATA_DIR)) {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+      }
+      fs.writeFileSync(TRAFFIC_FILE, JSON.stringify(this.trafficData, null, 2), 'utf-8');
+    } catch (e) {
+      console.error('Error saving traffic.json:', e);
+    }
+  }
+
+  private getClientIp(req: any): string {
+    const forwarded = req.headers['x-forwarded-for'];
+    if (forwarded) {
+      const ip = String(forwarded).split(',')[0].trim();
+      if (ip) return ip;
+    }
+    const realIp = req.headers['x-real-ip'];
+    if (realIp) return String(realIp).trim();
+    if (req.ip) return String(req.ip).replace('::ffff:', '');
+    if (req.socket?.remoteAddress) return String(req.socket.remoteAddress).replace('::ffff:', '');
+    return 'unknown';
+  }
+
+  public recordTraffic(req: any, userId?: string, role?: string): void {
+    try {
+      const now = Date.now();
+      const ip = this.getClientIp(req);
+      const path = req.path || req.originalUrl || '/';
+      // Skip static assets and internal polling
+      if (path.startsWith('/assets/') || path.includes('.js') || path.includes('.css') || path.includes('.svg') || path.includes('.png')) {
+        return;
+      }
+      const method = req.method || 'GET';
+      const ua = req.headers['user-agent'] || '';
+      const uaHash = crypto.createHash('sha256').update(ua + ip).digest('hex').substring(0, 16);
+      const key = `${ip}|${userId || 'anon'}|${uaHash}`;
+      
+      // Update session
+      this.trafficData.sessions[key] = {
+        key,
+        userId,
+        role,
+        ip,
+        lastSeen: now,
+      };
+      
+      // Cleanup old sessions (> 90 seconds)
+      const cutoff = now - 90 * 1000;
+      let concurrent = 0;
+      for (const k in this.trafficData.sessions) {
+        if (this.trafficData.sessions[k].lastSeen >= cutoff) {
+          concurrent++;
+        } else {
+          delete this.trafficData.sessions[k];
+        }
+      }
+      
+      // Update peak
+      if (concurrent > this.trafficData.peakConcurrent) {
+        this.trafficData.peakConcurrent = concurrent;
+        this.trafficData.peakConcurrentAt = new Date().toISOString();
+      }
+      
+      // Record hit
+      const date = new Date();
+      const hit: TrafficHit = {
+        id: `th-${crypto.randomBytes(6).toString('hex')}`,
+        ts: now,
+        dateKey: date.toISOString().split('T')[0],
+        monthKey: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
+        yearKey: String(date.getFullYear()),
+        ip,
+        path,
+        method,
+        userId,
+        role,
+        uaHash,
+      };
+      
+      this.trafficData.hits.push(hit);
+      const uniqueKey = `${ip}|${uaHash}`;
+      if (!this.trafficData.totalUniqueSet.includes(uniqueKey)) {
+        this.trafficData.totalUniqueSet.push(uniqueKey);
+      }
+      
+      // Keep only last 90 days of hits to prevent file growth
+      const ninetyDaysAgo = now - 90 * 24 * 60 * 60 * 1000;
+      this.trafficData.hits = this.trafficData.hits.filter(h => h.ts >= ninetyDaysAgo);
+      
+      this.saveTrafficData();
+    } catch (e) {
+      // Silent fail
+    }
+  }
+
+  public getTrafficStats(): TrafficStats {
+    const now = Date.now();
+    const todayKey = new Date().toISOString().split('T')[0];
+    const monthKey = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+    const yearKey = String(new Date().getFullYear());
+    const cutoff = now - 90 * 1000;
+    
+    // Count concurrent
+    let concurrentNow = 0;
+    for (const k in this.trafficData.sessions) {
+      if (this.trafficData.sessions[k].lastSeen >= cutoff) {
+        concurrentNow++;
+      }
+    }
+    
+    // Today stats
+    const todayHits: TrafficHit[] = this.trafficData.hits.filter((h: TrafficHit) => h.dateKey === todayKey);
+    const todayUnique = new Set(todayHits.map((h: TrafficHit) => `${h.ip}|${h.uaHash}`)).size;
+    const byHour: Record<string, number> = {};
+    for (let i = 0; i < 24; i++) {
+      byHour[String(i).padStart(2, '0')] = 0;
+    }
+    for (const h of todayHits) {
+      const hour = new Date(h.ts).getHours();
+      const hk = String(hour).padStart(2, '0');
+      byHour[hk] = (byHour[hk] || 0) + 1;
+    }
+    
+    // Month/Year
+    const monthHits: TrafficHit[] = this.trafficData.hits.filter((h: TrafficHit) => h.monthKey === monthKey);
+    const yearHits: TrafficHit[] = this.trafficData.hits.filter((h: TrafficHit) => h.yearKey === yearKey);
+    
+    // By date (last 30 days)
+    const dateMap = new Map<string, { hits: number; ips: Set<string> }>();
+    for (const h of this.trafficData.hits as TrafficHit[]) {
+      if (!dateMap.has(h.dateKey)) {
+        dateMap.set(h.dateKey, { hits: 0, ips: new Set() });
+      }
+      const d = dateMap.get(h.dateKey)!;
+      d.hits++;
+      d.ips.add(`${h.ip}|${h.uaHash}`);
+    }
+    const byDate = Array.from(dateMap.entries())
+      .map(([date, v]) => ({ date, hits: v.hits, unique: v.ips.size }))
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 30);
+    
+    // By month
+    const monthMap = new Map<string, { hits: number; ips: Set<string> }>();
+    for (const h of this.trafficData.hits as TrafficHit[]) {
+      if (!monthMap.has(h.monthKey)) {
+        monthMap.set(h.monthKey, { hits: 0, ips: new Set() });
+      }
+      const m = monthMap.get(h.monthKey)!;
+      m.hits++;
+      m.ips.add(`${h.ip}|${h.uaHash}`);
+    }
+    const byMonth = Array.from(monthMap.entries())
+      .map(([month, v]) => ({ month, hits: v.hits, unique: v.ips.size }))
+      .sort((a, b) => b.month.localeCompare(a.month));
+    
+    // By year
+    const yearMap = new Map<string, { hits: number; ips: Set<string> }>();
+    for (const h of this.trafficData.hits as TrafficHit[]) {
+      if (!yearMap.has(h.yearKey)) {
+        yearMap.set(h.yearKey, { hits: 0, ips: new Set() });
+      }
+      const y = yearMap.get(h.yearKey)!;
+      y.hits++;
+      y.ips.add(`${h.ip}|${h.uaHash}`);
+    }
+    const byYear = Array.from(yearMap.entries())
+      .map(([year, v]) => ({ year, hits: v.hits, unique: v.ips.size }))
+      .sort((a, b) => b.year.localeCompare(a.year));
+    
+    return {
+      totalHits: this.trafficData.hits.length,
+      totalUniqueVisitors: this.trafficData.totalUniqueSet.length,
+      concurrentNow,
+      peakConcurrent: this.trafficData.peakConcurrent,
+      peakConcurrentAt: this.trafficData.peakConcurrentAt,
+      today: { hits: todayHits.length, unique: todayUnique, byHour },
+      thisMonth: { hits: monthHits.length, unique: new Set(monthHits.map((h: TrafficHit) => `${h.ip}|${h.uaHash}`)).size },
+      thisYear: { hits: yearHits.length, unique: new Set(yearHits.map((h: TrafficHit) => `${h.ip}|${h.uaHash}`)).size },
+      byDate,
+      byMonth,
+      byYear,
+      recent: this.trafficData.hits.slice(-20).reverse(),
+    };
   }
 }
 
