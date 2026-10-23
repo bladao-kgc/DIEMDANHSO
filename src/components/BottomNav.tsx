@@ -7,7 +7,8 @@ import {
   QrCode, 
   Calendar, 
   History, 
-  UserCheck 
+  UserCheck,
+  BarChart3
 } from 'lucide-react';
 
 interface BottomNavProps {
@@ -25,7 +26,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 }) => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 lg:hidden pb-safe">
-      <div className="grid grid-cols-4 items-center h-16 px-1">
+      <div className="grid grid-cols-5 items-center h-16 px-1">
         {role === 'ADMIN' && (
           <>
             <button
@@ -35,7 +36,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               }`}
             >
               <LayoutDashboard className="w-5 h-5" />
-              <span className="text-[10px] tracking-tight mt-1 whitespace-nowrap">Tổng quan</span>
+              <span className="text-[9px] tracking-tight mt-1 whitespace-nowrap">Tổng quan</span>
             </button>
             <button
               onClick={() => onTabChange('users')}
@@ -44,7 +45,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               }`}
             >
               <Users className="w-5 h-5" />
-              <span className="text-[10px] tracking-tight mt-1 whitespace-nowrap">Đoàn viên</span>
+              <span className="text-[9px] tracking-tight mt-1 whitespace-nowrap">Đoàn viên</span>
             </button>
             <button
               onClick={() => onTabChange('reports')}
@@ -53,7 +54,16 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               }`}
             >
               <FileText className="w-5 h-5" />
-              <span className="text-[10px] tracking-tight mt-1 whitespace-nowrap">Báo cáo</span>
+              <span className="text-[9px] tracking-tight mt-1 whitespace-nowrap">Báo cáo</span>
+            </button>
+            <button
+              onClick={() => onTabChange('traffic')}
+              className={`flex flex-col items-center justify-center min-h-[44px] min-w-[44px] transition-colors ${
+                currentTab === 'traffic' ? 'text-blue-900 font-bold' : 'text-slate-500'
+              }`}
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span className="text-[9px] tracking-tight mt-1 whitespace-nowrap">Truy cập</span>
             </button>
             <button
               onClick={() => onTabChange('logs')}
@@ -62,7 +72,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
               }`}
             >
               <History className="w-5 h-5" />
-              <span className="text-[10px] tracking-tight mt-1 whitespace-nowrap">Nhật ký</span>
+              <span className="text-[9px] tracking-tight mt-1 whitespace-nowrap">Nhật ký</span>
             </button>
           </>
         )}

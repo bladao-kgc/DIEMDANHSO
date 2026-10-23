@@ -1,7 +1,7 @@
 import React from 'react';
 import type { UserProfile, UserRole } from '../types/index.ts';
 import { YouthUnionLogo } from './YouthUnionLogo.tsx';
-import { LogOut, UserCheck, Shield, Award, Users } from 'lucide-react';
+import { LogOut, UserCheck, Shield, Award, Users, BarChart3 } from 'lucide-react';
 
 interface NavbarProps {
   user: UserProfile;
@@ -73,6 +73,14 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }`}
               >
                 Báo cáo & CTXH
+              </button>
+              <button
+                onClick={() => onTabChange('traffic')}
+                className={`py-1 hover:text-blue-900 transition-colors whitespace-nowrap ${
+                  currentTab === 'traffic' ? 'text-blue-900 font-bold border-b-2 border-blue-900' : ''
+                }`}
+              >
+                Thống kê truy cập
               </button>
               <button
                 onClick={() => onTabChange('logs')}
