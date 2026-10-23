@@ -1,0 +1,204 @@
+import React, { useState } from 'react';
+import type { UserProfile } from '../types/index.ts';
+import { api } from '../services/api.ts';
+import { YouthUnionLogo } from './YouthUnionLogo.tsx';
+import { Shield, Users, Award, ArrowRight, AlertCircle, Sparkles } from 'lucide-react';
+
+interface LoginViewProps {
+  onLoginSuccess: (user: UserProfile) => void;
+}
+
+export const LoginView: React.FC<LoginViewProps> = ({ onLoginSuccess }) => {
+  const [identifier, setIdentifier] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!identifier.trim()) return;
+
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.login(identifier.trim());
+      onLoginSuccess(res.user);
+    } catch (err: any) {
+      setError(err.message || 'Đăng nhập không thành công.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleQuickDemoLogin = async (demoId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.login(demoId);
+      onLoginSuccess(res.user);
+    } catch (err: any) {
+      setError(err.message || 'Đăng nhập không thành công.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-between py-8 px-4 sm:px-6">
+      <div className="w-full max-w-md mx-auto my-auto space-y-6">
+        {/* Brand & Emblem Header */}
+        <div className="text-center space-y-3">
+          <div className="flex justify-center">
+            <YouthUnionLogo size={68} />
+          </div>
+
+          <div>
+            <span className="text-xs font-bold text-amber-600 tracking-wider uppercase block">
+              Đoàn trường Cao đẳng Kiên Giang
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-blue-900 tracking-tight uppercase mt-0.5">
+              ĐIỂM DANH SỐ
+            </h1>
+            <p className="text-xs text-slate-500 font-medium mt-1">
+              Hệ thống điểm danh QR động & Quản lý ngày Công tác xã hội
+              <br />
+              <strong className="text-slate-700">Đoàn khoa Cơ khí</strong>
+            </p>
+          </div>
+        </div>
+
+        {/* Login Card */}
+        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-5">
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="font-bold text-xs text-slate-700 block mb-1.5">
+                Tài khoản Đoàn viên / Cán bộ
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="Nhập mã ĐV (vd: CK2301) hoặc email KGC..."
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600/20 focus:border-blue-600 transition-all font-medium"
+              />
+              <span className="text-[11px] text-slate-400 mt-1 block">
+                Hệ thống tự động xác định vai trò sau khi xác thực.
+              </span>
+            </div>
+
+            {error && (
+              <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl flex items-start gap-2 border border-red-200">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 bg-blue-900 hover:bg-blue-800 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-colors shadow-sm disabled:opacity-50"
+            >
+              {loading ? 'Đang xác thực...' : 'Đăng nhập vào hệ thống'}
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
+
+          {/* Quick Demo Switcher Section */}
+          <div className="pt-4 border-t border-slate-100 space-y-2.5">
+            <div className="flex items-center justify-between text-xs text-slate-500">
+              <span className="font-bold uppercase tracking-wide text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
+                DỮ LIỆU DEMO KIỂM THỬ
+              </span>
+              <span className="text-[11px]">Bấm vào để thử nghiệm ngay:</span>
+            </div>
+
+            <div className="space-y-2">
+              {/* ADMIN Quick Login */}
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('bladao@kgc.edu.vn')}
+                className="w-full p-2.5 bg-slate-50 hover:bg-red-50/70 border border-slate-200 hover:border-red-200 rounded-xl flex items-center justify-between transition-colors text-left"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs shrink-0">
+                    AD
+                  </div>
+                  <div>
+                    <span className="font-bold text-xs text-slate-800 block">
+                      Bành Lê Anh Đào · Bí thư Đoàn khoa
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      Vai trò ADMIN · bladao@kgc.edu.vn
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-blue-900">Vào quản trị</span>
+              </button>
+
+              {/* CANBO Quick Login */}
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('thtkha@kgc.edu.vn')}
+                className="w-full p-2.5 bg-slate-50 hover:bg-blue-50/70 border border-slate-200 hover:border-blue-200 rounded-xl flex items-center justify-between transition-colors text-left"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs shrink-0">
+                    CB
+                  </div>
+                  <div>
+                    <span className="font-bold text-xs text-slate-800 block">
+                      Trương Hoàng Trung Kha · Cán bộ Đoàn
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      Vai trò CANBO · Quản lý hoạt động & QR
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-blue-900">Vào điều hành</span>
+              </button>
+
+              {/* DVTN Quick Login */}
+              <button
+                type="button"
+                onClick={() => handleQuickDemoLogin('CK2301')}
+                className="w-full p-2.5 bg-slate-50 hover:bg-emerald-50/70 border border-slate-200 hover:border-emerald-200 rounded-xl flex items-center justify-between transition-colors text-left"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xs shrink-0">
+                    SV
+                  </div>
+                  <div>
+                    <span className="font-bold text-xs text-slate-800 block">
+                      Nguyễn Văn An · Đoàn viên thanh niên
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-mono">
+                      Vai trò DVTN · Mã: CK2301 · Lớp CĐ CKM K23
+                    </span>
+                  </div>
+                </div>
+                <span className="text-[11px] font-bold text-blue-900">Vào điểm danh</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Slogan */}
+        <div className="text-center">
+          <span className="text-xs font-semibold text-blue-900/80 bg-blue-50 px-3 py-1 rounded-full border border-blue-100 inline-block">
+            ★ Kết nối đoàn viên - Số hóa hoạt động ★
+          </span>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer className="text-center text-xs text-slate-400 py-4 max-w-xl mx-auto">
+        <p className="font-medium text-slate-500">
+          Được phát triển bởi Đoàn khoa Cơ khí trực thuộc Đoàn trường Cao đẳng Kiên Giang.
+        </p>
+        <p className="text-[11px] text-slate-400 mt-0.5">
+          Hệ thống điểm danh QR động và quản lý ngày Công tác xã hội minh bạch, chuẩn xác.
+        </p>
+      </footer>
+    </div>
+  );
+};
