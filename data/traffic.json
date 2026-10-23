@@ -10,18 +10,154 @@
       "path": "/",
       "method": "GET",
       "uaHash": "ebd33c5d3896fe0a"
+    },
+    {
+      "id": "th-87d2fcbaffb3",
+      "ts": 1792780990318,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/",
+      "method": "GET",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-cc77ad24e3cf",
+      "ts": 1792780990430,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/auth/me",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-39fbc2901126",
+      "ts": 1792780990434,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/activities",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-d573866c7116",
+      "ts": 1792780990561,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/stats/dashboard",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-1761a89487c4",
+      "ts": 1792780990565,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/activities",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-043b004e5a30",
+      "ts": 1792780990570,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/attendance",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-72dd4c4aa02b",
+      "ts": 1792780990579,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/users",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-05a93b7b2665",
+      "ts": 1792780990584,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/activities",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-e466cd11114f",
+      "ts": 1792780990587,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/stats/traffic",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
+    },
+    {
+      "id": "th-7e4773140602",
+      "ts": 1792780990590,
+      "dateKey": "2026-10-23",
+      "monthKey": "2026-10",
+      "yearKey": "2026",
+      "ip": "100.71.212.110",
+      "path": "/api/audit-logs",
+      "method": "GET",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "uaHash": "b823641936b6352b"
     }
   ],
   "sessions": {
-    "127.0.0.1|anon|ebd33c5d3896fe0a": {
-      "key": "127.0.0.1|anon|ebd33c5d3896fe0a",
-      "ip": "127.0.0.1",
-      "lastSeen": 1792780528889
+    "100.71.212.110|anon|b823641936b6352b": {
+      "key": "100.71.212.110|anon|b823641936b6352b",
+      "ip": "100.71.212.110",
+      "lastSeen": 1792780990318
+    },
+    "100.71.212.110|usr-admin-01|b823641936b6352b": {
+      "key": "100.71.212.110|usr-admin-01|b823641936b6352b",
+      "userId": "usr-admin-01",
+      "role": "ADMIN",
+      "ip": "100.71.212.110",
+      "lastSeen": 1792780990590
     }
   },
-  "peakConcurrent": 1,
-  "peakConcurrentAt": "2026-10-23T18:35:28.890Z",
+  "peakConcurrent": 2,
+  "peakConcurrentAt": "2026-10-23T18:43:10.430Z",
   "totalUniqueSet": [
-    "127.0.0.1|ebd33c5d3896fe0a"
+    "127.0.0.1|ebd33c5d3896fe0a",
+    "100.71.212.110|b823641936b6352b"
   ]
 }
