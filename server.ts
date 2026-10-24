@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import rateLimit from 'express-rate-limit';
 import { db } from './src/server/db.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -9,6 +10,35 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
+
+// Trust proxy khi chạy qua Tailscale Funnel / reverse proxy
+app.set('trust proxy', 1);
+
+// Rate limiting
+// Giới hạn chung cho toàn bộ API: đủ cho ~500 người dùng đồng thời
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 phút
+  max: 1500, // 1500 request/IP/phút
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    const path = req.path;
+    return path === '/health' || path === '/healthz' || path === '/api/health';
+  },
+  message: { error: 'Hệ thống đang có quá nhiều truy cập. Vui lòng thử lại sau giây lát.' },
+});
+
+// Giới hạn riêng cho đăng nhập: chống brute-force nhưng vẫn cho phép điểm danh dồn
+const loginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 phút
+  max: 40, // tối đa 40 lần đăng nhập/IP/10 phút
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Quá nhiều yêu cầu đăng nhập từ IP này. Vui lòng thử lại sau 10 phút.' },
+});
+
+app.use('/api/', apiLimiter);
+app.use('/api/auth/login', loginLimiter);
 
 // Body parser with 15MB limit for photo proof base64
 app.use(express.json({ limit: '15mb' }));
